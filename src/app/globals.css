@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #ffffff;
+  --ink: #2b2a33;
+  --text: #17161d;
+  --muted: #5b6170;
+  --mint: #3ddc97;
+  --mint-deep: #1fb57a;
+  --mint-wash: #e9faf2;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-mint: var(--mint);
+  --color-mint-deep: var(--mint-deep);
+  --color-mint-wash: var(--mint-wash);
+  --font-sans: var(--font-figtree);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--text);
+  font-family: var(--font-figtree), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 3px solid var(--mint-deep);
+  outline-offset: 3px;
+}
+
+/* ───────── isometric island (see src/lib/island/scene.js) ───────── */
+.island svg { display: block; width: 100%; height: auto; overflow: visible; }
+/* build-in: pieces drop from above and settle */
+.piece { transform-box: fill-box; transform-origin: 50% 100%; transform: translateY(-22px) scale(.7); opacity: 0;
+         transition: transform .85s cubic-bezier(.34,1.56,.64,1), opacity .3s ease, filter .8s ease; }
+.piece.on { transform: none; opacity: 1; }
+.piece.soft { transform: none; transition: opacity 1.4s ease, filter .8s ease; }
+[data-owner] { transition: filter .8s ease; }
+.glow { transition: opacity .8s ease; }
+
+/* someone stepped away: their corner goes grey and its lights go out */
+
+/* ambient life */
+.bob     { animation: bob 8s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-5px); } }
+.bob2    { animation: bob 6s ease-in-out infinite; animation-delay: -2s; }
+.sway    { transform-box: fill-box; transform-origin: 50% 100%; animation: sway 6s ease-in-out infinite; }
+@keyframes sway { 0%,100% { transform: rotate(-1.4deg); } 50% { transform: rotate(1.6deg); } }
+.drift   { animation: drift 70s linear infinite; }
+@keyframes drift { from { transform: translateX(-120px); } to { transform: translateX(600px); } }
+.smoke circle { transform-box: fill-box; transform-origin: center; animation: smoke 4.5s ease-out infinite; opacity: 0; }
+.smoke circle:nth-child(2) { animation-delay: 1.5s; } .smoke circle:nth-child(3) { animation-delay: 3s; }
+@keyframes smoke { 0% { opacity: 0; transform: translate(0,0) scale(.4); } 20% { opacity: .8; } 100% { opacity: 0; transform: translate(12px,-38px) scale(2); } }
+.steam path { animation: steam 3s ease-in-out infinite; opacity: 0; }
+.steam path:nth-child(2) { animation-delay: 1.2s; }
+@keyframes steam { 0% { opacity: 0; transform: translateY(3px); } 50% { opacity: .9; } 100% { opacity: 0; transform: translateY(-7px); } }
+.flicker { animation: flicker 2.8s steps(1) infinite; }
+@keyframes flicker { 0%,100% { opacity: 1; } 33% { opacity: .75; } 36% { opacity: .95; } 70% { opacity: .8; } 74% { opacity: 1; } }
+.twinkle { animation: tw 3s ease-in-out infinite; }
+@keyframes tw { 50% { opacity: .25; } }
+.firefly { animation: fly 7s ease-in-out infinite; }
+@keyframes fly { 0%,100% { transform: translate(0,0); opacity: .15; } 25% { transform: translate(9px,-11px); opacity: 1; }
+                 50% { transform: translate(-7px,-19px); opacity: .35; } 75% { transform: translate(-11px,-6px); opacity: 1; } }
+.ripple  { transform-box: fill-box; transform-origin: center; animation: ripple 3.5s ease-out infinite; }
+@keyframes ripple { 0% { transform: scale(.3); opacity: .9; } 100% { transform: scale(1.5); opacity: 0; } }
+.fall    { stroke-dasharray: 5 7; animation: fall .7s linear infinite; }
+@keyframes fall { to { stroke-dashoffset: -12; } }
+.koi     { animation: koi 7s ease-in-out infinite; }
+@keyframes koi { 0%,100% { transform: translate(0,0); } 25% { transform: translate(9px,3px); } 50% { transform: translate(2px,7px); } 75% { transform: translate(-9px,2px); } }
+.nod     { animation: nod 2.4s ease-in-out infinite; }
+@keyframes nod { 50% { transform: translateY(1.2px); } }
+
+
+@media (prefers-reduced-motion: reduce) {
+  .island *, .island .piece { animation: none !important; transition: none !important; }
 }
