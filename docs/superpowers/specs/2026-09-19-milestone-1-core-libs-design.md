@@ -87,7 +87,7 @@ A client component with no backend and no animation.
   - done → "A small bowl, made together." plus minutes focused
   - left → "The clay went back in the bag."
 - `?speed=N` multiplies elapsed time for development (for example `?speed=60`).
-- It ticks once a second with `setInterval`, and computes state as `phaseAt(session, start + (Date.now() − start) × speed)`.
+- It ticks every 250 ms with `setInterval` (so `?speed=60` doesn't jump a minute per tick), and computes state as `phaseAt(session, start + (Date.now() − start) × speed)`. `speed` is read from `window.location.search` when Start is pressed, not with `useSearchParams`. That avoids a Suspense boundary and any hydration mismatch.
 - It uses the calm screens' Linen & Sage tokens from `globals.css` where they exist. It doesn't need to look polished.
 
 ## Testing
