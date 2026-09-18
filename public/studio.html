@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Focuspal Studio Clean</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f2eb">
+<title>Focuspal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..600,0..100,0..1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Focuspal: "Linen & Sage", the calm light theme.
    Goal: lower anxiety. Mostly soft neutrals and ONE muted accent (sage), with softer outlines and nothing loud.
-   Source of truth: design/prototypes/studio-screen-calm.html
+   Source of truth: design/prototypes/studio-screen-clean.html
    Contrast (WCAG) is noted against --bg / --card. Every text colour passes 4.5:1 on --bg and --card. */
 
 :root {
@@ -70,27 +71,39 @@
     body { padding:0; background:var(--bg); }
     .device { width:100vw; height:100dvh; border-radius:0; padding:0; box-shadow:none; }
     .screen { border-radius:0; } .island { display:none; }
+    /* on a real phone: no fake status bar, home indicator or demo panel */
+    .statusbar { height:env(safe-area-inset-top, 12px); padding:0; } .statusbar > * { display:none; }
+    .homebar, .demo { display:none; }
   }
   .statusbar { height:50px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:6px 30px 0 34px; font-weight:600; font-size:15px; position:relative; }
   .island { position:absolute; left:50%; top:10px; width:118px; height:34px; border-radius:20px; background:#000; transform:translateX(-50%); }
   .sb { display:flex; gap:6px; align-items:center; }
 
-  /* top: just the pod name and one quiet button */
   .top { display:flex; align-items:center; justify-content:space-between; padding:8px 20px 0 24px; }
   .pod { font-size:14px; font-weight:500; color:var(--text-2); }
   .icon-btn { width:44px; height:44px; border-radius:50%; border:0; background:transparent; display:grid; place-items:center; cursor:pointer; }
   .icon-btn:active { background:rgba(61,57,52,.06); }
 
-  .hero { text-align:center; padding:26px 24px 0; }
-  .timer { font-size:84px; font-weight:400; line-height:.9; letter-spacing:-1px; font-variant-numeric:tabular-nums lining-nums; }
-  .sub { margin-top:10px; font-size:16px; color:var(--accent); }
+  .hero { text-align:center; padding:12px 24px 0; }
+  .timer { font-size:72px; font-weight:400; line-height:.9; letter-spacing:-1px; font-variant-numeric:tabular-nums lining-nums; }
+  .sub { margin-top:8px; font-size:15.5px; color:var(--accent); }
 
-  .scene-wrap { flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; }
-  #scene { width:100%; height:auto; display:block; }
-  .caption { text-align:center; font-size:13.5px; color:var(--text-2); margin:0 24px; min-height:20px; }
+  /* the studio close-up: one big rounded card, the wheel as the hero */
+  .stage { flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; padding:0 20px; gap:14px; }
+  .card { position:relative; width:100%; aspect-ratio:342 / 400; max-height:100%; border-radius:34px; overflow:hidden; background:#e8e0d3; border:4px solid var(--card); box-shadow:0 18px 40px -26px rgba(61,57,52,.5); }
+  .card svg { position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .caption { text-align:center; font-size:13.5px; color:var(--text-2); margin:0 4px; min-height:20px; }
   .caption b { font-weight:600; color:var(--text); }
 
-  /* who's here: one quiet line that opens */
+  /* ambient studio motion: slow and small */
+  .light { animation:light 16s ease-in-out infinite; }
+  .leaf { animation:sway 7s ease-in-out infinite; transform-box:fill-box; transform-origin:bottom center; }
+  .mote { opacity:0; animation:mote 13s linear infinite; }
+  @keyframes light { 0%,100%{ opacity:.65 } 50%{ opacity:.95 } }
+  @keyframes sway  { 0%,100%{ transform:rotate(-1.5deg) } 50%{ transform:rotate(1.5deg) } }
+  @keyframes mote  { 0%{ opacity:0; transform:translate(0,0) } 15%{ opacity:.8 } 85%{ opacity:.5 } 100%{ opacity:0; transform:translate(18px,-34px) } }
+
+  /* who's here */
   .peek-space { height:96px; flex-shrink:0; }
   .scrim { position:absolute; inset:0; background:rgba(61,57,52,.14); opacity:0; pointer-events:none; transition:opacity .35s; }
   .open .scrim { opacity:1; pointer-events:auto; }
@@ -103,19 +116,17 @@
   .stack .badge:first-child { margin-left:0; }
   .peek b { flex:1; font-size:15px; font-weight:500; color:var(--text-2); }
   .chev { transition:transform .45s cubic-bezier(.2,.8,.2,1); } .open .chev { transform:rotate(180deg); }
-
   .badge { position:relative; width:44px; height:44px; border-radius:50%; background:var(--sand); overflow:hidden; flex-shrink:0; }
   .badge svg { width:100%; height:100%; display:block; }
   .badge * { animation:none !important; }
   .badge .focus, .badge .zz { display:none; }
+  .shut { display:none; }
   .badge.away { background:#ece7df; }
   .badge.away .body-ink { filter:grayscale(1) contrast(.55) brightness(1.12); }
   .badge.away .open { display:none; } .badge.away .shut { display:inline; }
-
   .sheet-body { flex:1; overflow:auto; padding:22px 24px 34px; opacity:0; pointer-events:none; transition:opacity .3s ease .05s; }
   .open .sheet-body { opacity:1; pointer-events:auto; }
-  .row { display:flex; align-items:center; gap:14px; padding:12px 0; transition:background .6s; border-radius:14px; }
-  .row.flash { background:var(--accent-soft); }
+  .row { display:flex; align-items:center; gap:14px; padding:12px 0; }
   .who { flex:1; min-width:0; }
   .who .nm { font-size:15px; font-weight:600; }
   .who .nm small { font-weight:500; color:var(--muted); font-size:13px; margin-left:4px; }
@@ -137,81 +148,72 @@
   .demo .btns button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); border-color:var(--accent); }
   @media (max-width:760px) { .demo { width:390px; max-width:100%; padding:0 8px; } }
 
-  /* ---------- scene animation ---------- */
-  /* ---------- scene animation (CSS only) ---------- */
-  .pal .head { animation:nod 7s ease-in-out infinite; }
-  .pal .torso { animation:breathe 5s ease-in-out infinite; }
-  .arm { animation:shapeL 2.4s ease-in-out infinite alternate; }
-  .arm.r { animation-name:shapeR; }
-  .rings { animation:spin 2.2s linear infinite; }
-  .wheel-dash { animation:dash 2.2s linear infinite; }
-  .focus line { opacity:0; animation:spark 11s ease-in-out infinite; }
-  .zz text { opacity:0; }
-  .shut { display:none; }
-  .steam path { animation:steam 3.2s ease-in-out infinite; opacity:0; }
-  .steam path:nth-child(2){ animation-delay:1.4s; }
-  .sun { animation:sun 12s ease-in-out infinite; }
-  .leaf { animation:sway 6s ease-in-out infinite; transform-box:fill-box; transform-origin:bottom center; }
-
-  /* stagger each pal so they don't move in lockstep */
-  .p-koala *{ animation-delay:-.3s; } .p-cat *{ animation-delay:-1.7s; }
-  .p-bunny *{ animation-delay:-.9s; } .p-dog *{ animation-delay:-2.4s; }
-  .p-cat .focus line{ animation-delay:2s; } .p-bunny .focus line{ animation-delay:.2s; } .p-dog .focus line{ animation-delay:4s; } .p-koala .focus line{ animation-delay:3.1s; }
-
-  /* ---------- away / dozing ---------- */
-  .away .body-ink { filter:grayscale(1) contrast(.55) brightness(1.12); transition:opacity .6s, filter .6s; }
-  .away .head { animation:doze 3.6s ease-in-out infinite; }
-  .away .arm, .away .rings, .away .wheel-dash, .away .torso { animation-play-state:paused; }
-  .away .open { display:none; } .away .shut { display:inline; }
-  .away .focus { display:none; }
-  .away .zz text { animation:zfloat 3s ease-in infinite; }
-  .away .zz text:nth-child(2){ animation-delay:1s; } .away .zz text:nth-child(3){ animation-delay:2s; }
-  .away .piece { filter:grayscale(.6); }
-
-  @keyframes nod     { 0%,100%{ transform:rotate(0) } 50%{ transform:rotate(-1.5deg) translateY(.4px) } }
-  @keyframes breathe { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-.6px) } }
-  @keyframes shapeL  { from{ transform:rotate(-1.2deg) } to{ transform:rotate(1deg) } }
-  @keyframes shapeR  { from{ transform:rotate(1.2deg) } to{ transform:rotate(-1deg) } }
-  @keyframes spin    { from{ transform:translateX(0) } to{ transform:translateX(8px) } }
-  @keyframes dash    { to{ stroke-dashoffset:-12 } }
-  @keyframes spark   { 0%,78%{ opacity:0 } 84%,90%{ opacity:.9 } 96%,100%{ opacity:0 } }
-  @keyframes doze    { 0%,100%{ transform:rotate(9deg) translateY(3px) } 50%{ transform:rotate(11deg) translateY(4px) } }
-  @keyframes zfloat  { 0%{ opacity:0; transform:translate(0,0) } 20%{ opacity:1 } 100%{ opacity:0; transform:translate(10px,-22px) } }
-  @keyframes steam   { 0%{ opacity:0; transform:translateY(4px) } 30%{ opacity:.8 } 100%{ opacity:0; transform:translateY(-12px) } }
-  @keyframes sun     { 0%,100%{ opacity:.55 } 50%{ opacity:.85 } }
-  @keyframes sway    { 0%,100%{ transform:rotate(-2.5deg) } 50%{ transform:rotate(2.5deg) } }
-
-
-
-  .beam { animation:beam 16s ease-in-out infinite; }
-  .mote { opacity:0; animation:mote 12s linear infinite; }
-  .sunpatch { transition:transform 1s linear; }
-  @keyframes beam { 0%,100%{ opacity:.7 } 50%{ opacity:1 } }
-  @keyframes mote { 0%{ opacity:0; transform:translate(0,0) } 15%{ opacity:.9 } 85%{ opacity:.6 } 100%{ opacity:0; transform:translate(14px,-26px) } }
-  .is-break .arm, .is-break .rings, .is-break .wheel-dash { animation-play-state:paused; }
-  .is-break .focus { display:none; }
   .rm *, .rm *::before, .rm *::after { animation:none !important; transition:none !important; }
-  .rm .away .zz text { opacity:1; }
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition-duration:0s !important; } .away .zz text { opacity:1; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition-duration:0s !important; } }
 </style>
 </head>
 <body>
   <div class="device">
     <div class="screen screen-bg" id="app">
       <div class="statusbar"><span>9:41</span><div class="island"></div><div class="sb"><svg width="17" height="11" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#3d3934"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#3d3934"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#3d3934"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#3d3934"/></svg><svg width="15" height="11" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0z M3.5 7a6.4 6.4 0 0 1 9 0l-1.4 1.4a4.4 4.4 0 0 0-6.2 0z M1 4.4a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z" fill="#3d3934"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#3d3934" opacity=".45"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#3d3934"/></svg></div></div>
-
       <div class="top">
         <span class="pod">The afternoon pod</span>
         <button class="icon-btn" type="button" aria-label="Invite a friend" id="inviteTop"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f584f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/></svg></button>
       </div>
-
       <div class="hero">
-        <div class="timer display" id="timer" aria-live="off">07:19</div>
+        <div class="timer display" id="timer" aria-live="off">25:00</div>
         <div class="sub display" id="cap">Round 1 of 2 · until your break</div>
       </div>
 
-      <div class="scene-wrap">
-        <svg id="scene" viewBox="14 52 372 334" role="img" aria-label="Four pals at one table, each writing in a notebook, while a shared pot grows on the wheel in the middle"></svg>
+      <div class="stage">
+        <div class="card">
+          <svg id="studio" viewBox="0 0 342 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Close-up of the shared pot on a pottery wheel in a quiet studio">
+            <defs>
+              <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efe9df"/><stop offset="1" stop-color="#e3d9ca"/></linearGradient>
+              <linearGradient id="bench" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ddd1bf"/><stop offset="1" stop-color="#d2c4b0"/></linearGradient>
+              <radialGradient id="glow" cx=".25" cy=".2" r=".7"><stop offset="0" stop-color="#fffaf0" stop-opacity=".9"/><stop offset="1" stop-color="#fffaf0" stop-opacity="0"/></radialGradient>
+              <radialGradient id="pan" cx=".5" cy=".42" r=".6"><stop offset="0" stop-color="#b9ab98"/><stop offset=".75" stop-color="#c8bba8"/><stop offset="1" stop-color="#d6cab8"/></radialGradient>
+              <radialGradient id="vig" cx=".5" cy=".55" r=".75"><stop offset=".6" stop-color="#3d3934" stop-opacity="0"/><stop offset="1" stop-color="#3d3934" stop-opacity=".16"/></radialGradient>
+              <filter id="dof" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.4"/></filter>
+              <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
+            </defs>
+
+            <!-- the studio behind, softly out of focus -->
+            <rect width="342" height="400" fill="url(#wall)"/>
+            <g class="light" filter="url(#soft)">
+              <polygon points="-10,10 96,-10 150,210 30,240" fill="#fffaf0" opacity=".85"/>
+              <polygon points="120,-10 176,-10 220,170 160,190" fill="#fffaf0" opacity=".55"/>
+            </g>
+            <rect width="342" height="400" fill="url(#glow)"/>
+            <g filter="url(#dof)" opacity=".85">
+              <rect x="186" y="118" width="170" height="8" rx="2" fill="#d4c6b1"/>
+              <rect x="186" y="126" width="170" height="4" fill="#c3b39c"/>
+              <path d="M214 118 q-10 -14 -4 -28 h14 q6 14 -4 28 z" fill="#e3d3b4"/>
+              <path d="M248 118 q-16 0 -18 -14 h36 q-2 14 -18 14 z" fill="#b8cdbb"/>
+              <path d="M290 118 v-24 h20 v24 z" fill="#efe7d6"/>
+              <path d="M326 118 q-12 -10 -6 -34 h12 q6 24 -6 34 z" fill="#aab2b6"/>
+            </g>
+            <g filter="url(#dof)" opacity=".7">
+              <g class="leaf"><ellipse cx="22" cy="176" rx="11" ry="30" fill="#b8cdbb" transform="rotate(-24 22 176)"/></g>
+              <g class="leaf" style="animation-delay:-2.4s"><ellipse cx="44" cy="160" rx="10" ry="28" fill="#a9c4ae" transform="rotate(12 44 160)"/></g>
+              <g class="leaf" style="animation-delay:-4.1s"><ellipse cx="8" cy="200" rx="10" ry="26" fill="#bcd2c0" transform="rotate(-48 8 200)"/></g>
+            </g>
+            <circle class="mote" cx="92" cy="150" r="1.3" fill="#fffdf9"/>
+            <circle class="mote" cx="120" cy="96" r="1" fill="#fffdf9" style="animation-delay:-5s"/>
+            <circle class="mote" cx="70" cy="200" r="1.1" fill="#fffdf9" style="animation-delay:-9s"/>
+
+            <!-- the bench and the wheel's splash pan -->
+            <rect x="-10" y="218" width="362" height="190" fill="url(#bench)"/>
+            <line x1="-10" y1="218" x2="352" y2="218" stroke="#3d3934" stroke-opacity=".18"/>
+            <ellipse cx="171" cy="356" rx="246" ry="112" fill="#cfc2af" stroke="#3d3934" stroke-opacity=".35" stroke-width="1.2"/>
+            <ellipse cx="171" cy="362" rx="228" ry="98" fill="url(#pan)"/>
+            <g fill="#a8977f" opacity=".55"><circle cx="58" cy="352" r="2.2"/><circle cx="74" cy="372" r="1.4"/><circle cx="286" cy="360" r="2"/><circle cx="262" cy="384" r="1.3"/><circle cx="300" cy="332" r="1.2"/></g>
+
+            <!-- the shared pot (pottery-pot.js) -->
+            <g id="potMount"></g>
+            <rect width="342" height="400" fill="url(#vig)" pointer-events="none"/>
+          </svg>
+        </div>
         <p class="caption" id="caption"></p>
       </div>
 
@@ -224,10 +226,7 @@
         </button>
         <div class="sheet-body" id="sheetBody">
           <div id="rows"></div>
-          <div class="actions">
-            <button type="button" id="copy">Copy invite link</button>
-            <button type="button" class="leave">Leave</button>
-          </div>
+          <div class="actions"><button type="button" id="copy">Copy invite link</button><button type="button" class="leave" id="leave">Leave</button></div>
         </div>
       </section>
       <div class="homebar"></div>
@@ -235,12 +234,10 @@
   </div>
 
   <aside class="demo">
-    <h3 class="display">Studio: cleaner</h3>
-    <p>The same screen with less on it: the pod name, the timer, one line under it, the room, and one line for who's here. Each pal writes in their own notebook, and <b>the shared pot in the middle is thrown from a lump into a glazed vase</b> across the session's focus time, whatever the pomodoro length. The wheel rests on breaks and slows when someone steps away. Finish the session and the pot is made. Leave early and the clay slumps back, so nothing is made. This is Ashna's view, and Cyril is the host.</p>
+    <h3 class="display">Studio: the wheel, up close</h3>
+    <p>No pals in the scene. The pot is the hero: a close-up of the wheel in a quiet studio, sized like your reference. The window light, shelf and plant sit softly out of focus behind it. The clay is thrown from a lump into a vase across the session's focus time. The wheel slows when someone steps away, rests on breaks, and the pot is glazed at the end. The people are still one tap away in <b>Who's here</b>.</p>
     <div class="lbl">Step away</div>
     <div class="btns" id="awayBtns"></div>
-    <div class="lbl">Pomodoro length (2 rounds, 5 min break)</div>
-    <div class="btns" id="lenBtns"><button type="button" data-min="15">15 min</button><button type="button" data-min="20">20 min</button><button type="button" data-min="25" aria-pressed="true">25 min</button><button type="button" data-min="50">50 min</button></div>
     <div class="lbl">Time</div>
     <div class="btns"><button type="button" id="fast" aria-pressed="false">Speed up 60×</button><button type="button" id="toBreak">Jump to break</button><button type="button" id="toEnd">Jump to the end</button></div>
     <div class="lbl">Session</div>
@@ -484,77 +481,6 @@
 
 
 
-  // ================= cleaner scene: fewer objects, one shared pot =================
-  var DEFS = '<defs>' +
-    '<linearGradient id="beamG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8e6" stop-opacity=".95"/><stop offset="1" stop-color="#fff8e6" stop-opacity=".12"/></linearGradient>' +
-    '<radialGradient id="patchG"><stop offset="0" stop-color="#fff6e0" stop-opacity=".95"/><stop offset="1" stop-color="#fff6e0" stop-opacity="0"/></radialGradient>' +
-    '<linearGradient id="potShade" x1="0" x2="1"><stop offset="0" stop-color="#6b5a45" stop-opacity=".22"/><stop offset=".34" stop-color="#fff" stop-opacity=".3"/><stop offset=".56" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#6b5a45" stop-opacity=".26"/></linearGradient>' +
-    '</defs>';
-
-  function room() {
-    var s = '<ellipse cx="' + P(W1, W1, 0)[0] + '" cy="' + (P(W1, W1, 0)[1] + 14) + '" rx="168" ry="24" fill="#e9e1d3" opacity=".8"/>';
-    s += rectL(W0, W1, W1, -0.38, 0, '#d9ccb8') + rectR(W1, W0, W1, -0.38, 0, '#c7b8a2');
-    s += rectT(W0, W0, W1, W1, 0, '#eee6d9');
-    s += rectR(W0, W0, W1, 0, WH, '#f5f0e7') + rectL(W0, W1, W0, 0, WH, '#e9e1d4');
-    // window and its light
-    s += rectR(W0, 0.5, 2.7, 1.8, 3.35, '#fbf6ea');
-    var m1 = P(W0, 1.6, 1.8), m2 = P(W0, 1.6, 3.35), m3 = P(W0, 0.5, 2.6), m4 = P(W0, 2.7, 2.6);
-    s += line(m1[0], m1[1], m2[0], m2[1], 1.1) + line(m3[0], m3[1], m4[0], m4[1], 1.1);
-    s += '<g class="sunpatch"><ellipse cx="' + f(P(-0.7, 2.6, 0)[0]) + '" cy="' + f(P(-0.7, 2.6, 0)[1]) + '" rx="46" ry="20" fill="url(#patchG)"/></g>';
-    s += '<polygon class="beam" points="' + pts([P(W0, 0.5, 3.35), P(W0, 2.7, 3.35), P(-0.3, 3.9, 0), P(-0.3, 1.5, 0)]) + '" fill="url(#beamG)"/>';
-    [[-1.0, 1.6, 2.2, 0], [-0.8, 2.3, 1.4, 5], [-0.9, 2.8, 0.9, 9]].forEach(function (m) {
-      var q = P(m[0], m[1], m[2]); s += '<circle class="mote" cx="' + f(q[0]) + '" cy="' + f(q[1]) + '" r="1.1" fill="#fffdf9" style="animation-delay:-' + m[3] + 's"/>';
-    });
-    // one short shelf: the pod's finished pieces
-    s += box(1.5, W0, 2.55, 2.4, 0.34, 0.08, [WOOD, WOOD_S, WOOD_D]);
-    s += mini('bowl', P(2.2, W0 + 0.18, 2.63)) + mini('vase2', P(3.3, W0 + 0.18, 2.63));
-    return s;
-  }
-
-  // each pal works on their own task: an open notebook under their hands
-  function notebook(p) {
-    var z = TZ + 0.015, a = 0.32, b = 0.24, s = '';
-    s += poly([P(p.x - a, p.y - b, z), P(p.x, p.y - b, z), P(p.x, p.y + b, z), P(p.x - a, p.y + b, z)], PAPER, 1.1);
-    s += poly([P(p.x, p.y - b, z), P(p.x + a, p.y - b, z), P(p.x + a, p.y + b, z), P(p.x, p.y + b, z)], PAPER, 1.1);
-    for (var i = 1; i < 4; i++) {
-      var u = -b + i * (2 * b / 4), q1 = P(p.x + 0.06, p.y + u, z), q2 = P(p.x + a - 0.06, p.y + u, z);
-      s += line(q1[0], q1[1], q2[0], q2[1], 0.7, '#d4cbbd');
-    }
-    return '<g class="p-' + p.kind + '">' + s + '</g>';
-  }
-
-  function arms(p) {
-    var ax = p.ax, ay = p.ay, x = p.px, y = p.py;
-    function arm(side, cls) {
-      var sx = ax + side * 15, sy = ay - 24, hx = x + side * 8, hy = y - 1;
-      var cx = sx + side * 7, cy = (sy + hy) / 2 + 4, d = 'M' + sx + ' ' + sy + ' Q' + cx + ' ' + cy + ' ' + hx + ' ' + hy;
-      return '<g class="arm ' + cls + '" style="transform-origin:' + sx + 'px ' + sy + 'px">' +
-        '<path d="' + d + '" stroke="' + INK + '" stroke-width="9.5" fill="none" stroke-linecap="round"/>' +
-        '<path d="' + d + '" stroke="' + p.sleeve + '" stroke-width="6.8" fill="none" stroke-linecap="round"/>' + ci(hx, hy, 5.2, p.hand) + '</g>';
-    }
-    return '<g class="p-' + p.kind + '"><g class="body-ink">' + arm(-1, 'l') + arm(1, 'r') + '</g></g>';
-  }
-
-  // the shared pot lives in pottery-pot.js (FocusPot): clay on a wheel, shaped by session progress
-
-  function buildScene(kinds, t, tap) {
-    var list = PALS.filter(function (p) { return kinds.indexOf(p.kind) >= 0; });
-    var svg = DEFS + room() + plant();
-    svg += leg(0.15, 0.15) + leg(TX - 0.37, 0.15) + leg(0.15, TY - 0.37);
-    list.slice().sort(function (a, b) { return (a.x + a.y) - (b.x + b.y); }).forEach(function (p) { svg += palBody(p); });
-    svg += leg(TX - 0.37, TY - 0.37);
-    svg += rectL(0, TX, TY, TZ - TT, TZ, WOOD_S) + rectR(TX, 0, TY, TZ - TT, TZ, WOOD_D) + rectT(0, 0, TX, TY, TZ, WOOD);
-    list.forEach(function (p) { svg += notebook(p); });
-    list.forEach(function (p) { svg += arms(p); });
-    svg += '<g class="shared-pot"></g>';
-    svg += coffee();
-    if (tap) list.forEach(function (p) {
-      svg += '<rect data-kind="' + p.kind + '" x="' + (p.ax - 24) + '" y="' + (p.ay - 82) + '" width="48" height="104" fill="transparent" style="cursor:pointer"><title>' + p.name + '</title></rect>';
-    });
-    return svg;
-  }
-
-
   var PEOPLE = {
     bunny: { name: 'Ashna', you: true, task: 'Hackathon pitch deck' },
     dog:   { name: 'Cyril', host: true, task: 'Supabase realtime sync' },
@@ -562,53 +488,41 @@
     koala: { name: 'Leo', task: 'Portfolio case study' }
   };
   var ORDER = ['bunny', 'dog', 'cat', 'koala'], away = {};
-  var root = document.getElementById('scene'), app = document.getElementById('app'), peek = document.getElementById('peek');
+  var app = document.getElementById('app'), peek = document.getElementById('peek');
 
-  // ---------- clock + pot progress ----------
-  var F = 25 * 60, B = 5 * 60, TOTAL = F + B + F, elapsed = 0, speed = 1, phase = 'focus', potT = 0;
-  root.innerHTML = buildScene(ORDER, potT, true);
-  var sunpatch = root.querySelector('.sunpatch');
-  var wheelAt = P(TX / 2, TY / 2, TZ);
-  var pot = FocusPot.create(root.querySelector('.shared-pot'), { x: wheelAt[0], y: wheelAt[1] - 4, scale: 0.23 });
-  function startSession(minutes) {
-    if (minutes) { F = minutes * 60; TOTAL = F + B + F; }
-    elapsed = 0; potT = 0; phase = 'focus'; app.classList.remove('is-break');
-    pot.start(); render(); tick();
-  }
+  // ---------- the big pot on the wheel ----------
+  var pot = FocusPot.create(document.getElementById('potMount'), { x: 171, y: 346, scale: 1.18, band: 11 });
 
+  // ---------- who's here ----------
   function badge(kind) {
     var p = PALS.filter(function (q) { return q.kind === kind; })[0];
     return '<svg viewBox="23 27 54 54" aria-hidden="true">' + palBody({ kind: kind, ax: 50, ay: 92, piece: p.piece }) + '</svg>';
   }
   var stack = document.getElementById('stack'), rows = document.getElementById('rows');
   ORDER.forEach(function (k) {
-    stack.insertAdjacentHTML('beforeend', '<span class="badge" data-kind="' + k + '">' + badge(k) + '</span>');
     var P_ = PEOPLE[k];
+    stack.insertAdjacentHTML('beforeend', '<span class="badge" data-kind="' + k + '">' + badge(k) + '</span>');
     rows.insertAdjacentHTML('beforeend', '<div class="row" id="row-' + k + '"><span class="badge" data-kind="' + k + '">' + badge(k) + '</span>' +
       '<div class="who"><div class="nm">' + P_.name + (P_.you ? '<small>you</small>' : '') + (P_.host ? '<small>host</small>' : '') + '</div><div class="task">' + P_.task + '</div></div>' +
       '<span class="st"><i></i><span class="stt">Focusing</span></span></div>');
   });
-
   function setOpen(v) { app.classList.toggle('open', v); peek.setAttribute('aria-expanded', v ? 'true' : 'false'); }
   peek.addEventListener('click', function (e) { e.stopPropagation(); setOpen(!app.classList.contains('open')); });
   document.querySelector('.sheet').addEventListener('click', function () { if (!app.classList.contains('open')) setOpen(true); });
   document.getElementById('scrim').addEventListener('click', function () { setOpen(false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
   document.getElementById('inviteTop').addEventListener('click', function () { setOpen(true); });
-  root.addEventListener('click', function (e) {
-    var k = e.target.getAttribute && e.target.getAttribute('data-kind'); if (!k) return;
-    setOpen(true); var r = document.getElementById('row-' + k); r.classList.add('flash'); setTimeout(function () { r.classList.remove('flash'); }, 1400);
-  });
   document.getElementById('copy').addEventListener('click', function (e) {
     try { navigator.clipboard.writeText('https://focuspal.app/p/afternoon'); } catch (err) {}
     e.target.textContent = 'Copied'; setTimeout(function () { e.target.textContent = 'Copy invite link'; }, 1600);
   });
 
+  // ---------- session clock ----------
+  var F = 25 * 60, B = 5 * 60, TOTAL = F + B + F, elapsed = 0, focusDone = 0, speed = 1, phase = 'focus';
   function render() {
     var gone = [];
     ORDER.forEach(function (k) {
       var a = !!away[k]; if (a) gone.push(PEOPLE[k].name);
-      root.querySelectorAll('.p-' + k).forEach(function (g) { g.classList.toggle('away', a); });
       document.querySelectorAll('.badge[data-kind="' + k + '"]').forEach(function (b) { b.classList.toggle('away', a); });
       var r = document.getElementById('row-' + k); r.classList.toggle('away', a);
       r.querySelector('.stt').textContent = a ? 'Dozing' : (phase === 'break' ? 'On break' : 'Focusing');
@@ -618,10 +532,10 @@
     pot.setPace(n / 4);
     document.getElementById('peekTitle').textContent = phase === 'break' ? 'On a break together' : phase === 'done' ? 'Session complete' : phase === 'ended' ? 'Session ended' : (gone.length ? n + ' focusing · ' + gone.join(' & ') + ' dozing' : '4 focusing');
     var cap = document.getElementById('caption');
-    if (phase === 'done') cap.innerHTML = '<b>Session complete.</b> Lovely work, pod.';
-    else if (phase === 'ended') cap.innerHTML = '<b>Session ended early.</b> The clay goes back in the bag for next time.';
+    if (phase === 'done') cap.innerHTML = '<b>Session complete.</b> Your vase is glazed.';
+    else if (phase === 'ended') cap.innerHTML = '<b>Session ended early.</b> The clay goes back in the bag.';
     else if (phase === 'break') cap.innerHTML = '<b>Break.</b> The wheel rests, and tea is steeping.';
-    else if (gone.length) cap.innerHTML = '<b>' + gone.join(' & ') + (gone.length > 1 ? ' have' : ' has') + ' nodded off.</b> The clay slows down.';
+    else if (gone.length) cap.innerHTML = '<b>' + gone.join(' & ') + (gone.length > 1 ? ' have' : ' has') + ' nodded off.</b> The wheel slows down.';
     else cap.innerHTML = '<b>Everyone\'s focusing.</b> The pot is taking shape.';
   }
   var awayBtns = document.getElementById('awayBtns');
@@ -633,41 +547,30 @@
 
   function fmt(s) { s = Math.max(0, Math.ceil(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
   function tick() {
+    if (phase === 'ended') return;
     var left, np, cap;
-    if (phase === 'ended') { document.getElementById('timer').textContent = '00:00'; document.getElementById('cap').textContent = 'Session ended'; pot.setRunning(false); return; }
     if (elapsed < F) { np = 'focus'; left = F - elapsed; cap = 'Round 1 of 2 · until your break'; }
     else if (elapsed < F + B) { np = 'break'; left = F + B - elapsed; cap = 'Break · back in a moment'; }
     else if (elapsed < TOTAL) { np = 'focus'; left = TOTAL - elapsed; cap = 'Round 2 of 2 · until the end'; }
     else { np = 'done'; left = 0; cap = 'See you next time'; }
-    if (np !== phase) { phase = np; app.classList.toggle('is-break', phase !== 'focus'); render(); if (phase === 'done') pot.complete(); }
+    if (np !== phase) { phase = np; render(); if (phase === 'done') pot.complete(); }
     pot.setRunning(phase === 'focus');
+    focusDone = Math.min(elapsed, F) + Math.max(0, Math.min(elapsed - F - B, F));
+    if (phase !== 'done') pot.setProgress(focusDone / (2 * F));
     document.getElementById('timer').textContent = fmt(left);
     document.getElementById('cap').textContent = cap;
-    var t = Math.min(1, elapsed / TOTAL);
-    if (sunpatch) sunpatch.setAttribute('transform', 'translate(' + (t * 26).toFixed(1) + ' ' + (t * 9).toFixed(1) + ')');
-    pot.setProgress(potT);
   }
-  setInterval(function () {
-    if (phase === 'done' || phase === 'ended') return;
-    elapsed += speed;
-    if (phase === 'focus') { var here = ORDER.filter(function (k) { return !away[k]; }).length; potT = Math.min(1, potT + speed * (here / 4) / (2 * F)); }
-    tick();
-  }, 1000);
+  function start() { elapsed = 0; phase = 'focus'; pot.start(); render(); tick(); }
+  setInterval(function () { if (phase === 'done' || phase === 'ended') return; elapsed += speed; tick(); }, 1000);
   document.getElementById('fast').addEventListener('click', function (e) { speed = speed === 1 ? 60 : 1; e.target.setAttribute('aria-pressed', speed > 1 ? 'true' : 'false'); });
-  document.getElementById('toBreak').addEventListener('click', function () { if (phase === 'focus' && elapsed < F) { potT += (F - 3 - elapsed) / (2 * F); elapsed = F - 3; tick(); } });
-  document.getElementById('toEnd').addEventListener('click', function () { if (phase === 'done' || phase === 'ended') return; if (elapsed < F + B) { potT = Math.max(potT, 0.5); elapsed = F + B; } potT += (TOTAL - 3 - elapsed) / (2 * F); elapsed = TOTAL - 3; tick(); });
-  function endEarly() { if (phase === 'done' || phase === 'ended') return; phase = 'ended'; app.classList.add('is-break'); pot.abandon(); render(); tick(); setOpen(false); }
+  document.getElementById('toBreak').addEventListener('click', function () { if (phase === 'ended' || phase === 'done') start(); elapsed = F - 3; tick(); });
+  document.getElementById('toEnd').addEventListener('click', function () { if (phase === 'ended' || phase === 'done') start(); elapsed = TOTAL - 4; tick(); });
+  function endEarly() { if (phase === 'done' || phase === 'ended') return; phase = 'ended'; pot.setRunning(false); pot.abandon(); render(); setOpen(false); document.getElementById('timer').textContent = '00:00'; document.getElementById('cap').textContent = 'Session ended'; }
   document.getElementById('endEarly').addEventListener('click', endEarly);
-  document.querySelector('.leave').addEventListener('click', function (e) { e.stopPropagation(); endEarly(); });
-  document.getElementById('restart').addEventListener('click', function () { startSession(); });
-  document.querySelectorAll('#lenBtns button').forEach(function (b) {
-    b.addEventListener('click', function () {
-      document.querySelectorAll('#lenBtns button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-      startSession(+b.dataset.min);
-    });
-  });
+  document.getElementById('leave').addEventListener('click', endEarly);
+  document.getElementById('restart').addEventListener('click', start);
   document.getElementById('rmBtn').addEventListener('click', function (e) { var on = !document.body.classList.contains('rm'); document.body.classList.toggle('rm', on); e.target.setAttribute('aria-pressed', on ? 'true' : 'false'); });
-  startSession();
+  start();
 })();
 </script>
 </body>
