@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Focuspal Clean Screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..600,0..100,0..1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Focuspal: "Linen & Sage", the calm light theme.
+   Goal: lower anxiety. Mostly soft neutrals and ONE muted accent (sage), with softer outlines and nothing loud.
+   Source of truth: design/prototypes/studio-screen-calm.html
+   Contrast (WCAG) is noted against --bg / --card. Every text colour passes 4.5:1 on --bg and --card. */
+
+:root {
+  /* surfaces: warm linen with a very soft glow behind the scene */
+  --bg:#f6f2eb;        /* screen base */
+  --bg-hi:#fbf8f3;     /* glow centre */
+  --bg-lo:#ece5da;     /* gentle edge vignette (muted text drops to 4.45:1 here, so keep it clear) */
+  --card:#fffdf9;      /* cards, sheets, inputs */
+  --card-2:#faf6ef;    /* card top edge (gradient start) */
+  --line:rgba(61,57,52,.10);  /* hairlines and dividers */
+
+  /* text: warm charcoal, never pure black */
+  --text:#3d3934;      /* primary text, the timer: 10.3:1 on bg */
+  --text-2:#5f584f;    /* secondary: 6.3:1 */
+  --muted:#6f675d;     /* meta and captions: 5.0 bg / 5.5 card */
+
+  /* the ONE accent */
+  --accent:#54715d;    /* sage: progress, subtitles, tags, primary buttons: 4.8 bg / 5.3 card */
+  --accent-deep:#46604e;
+  --accent-soft:#e4ece4;  /* selected chips, washes, the break segment */
+  --on-accent:#fffdf9; /* text on sage: 5.3:1 */
+
+  /* status: quiet, never alarming */
+  --live:#7fa38a;      /* focusing dot (decorative, always paired with a text label) */
+  --sleep:#bdb4a8;     /* dozing dot and badge */
+  --danger:#9c5a46;    /* Leave session, text only, never a red fill: 4.75:1 */
+  --sand:#e9e1d3;      /* floor disc under the diorama, avatar badges */
+
+  /* type */
+  --font-display: Fraunces, Georgia, serif;   /* with font-variation-settings:"SOFT" 100, "WONK" 1 */
+  --font-ui: Inter, system-ui, sans-serif;
+}
+
+/* Google Fonts:
+   https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..600,0..100,0..1&family=Inter:wght@400;500;600;700&display=swap */
+
+.display { font-family:var(--font-display); font-variation-settings:"SOFT" 100, "WONK" 1; }
+
+.screen-bg {
+  background:radial-gradient(120% 70% at 50% 58%, var(--bg-hi) 0%, var(--bg) 52%, var(--bg-lo) 100%);
+}
+
+/* scene palette (SVG). Outlines are soft charcoal, and fills stay near-neutral. */
+/* ink #3d3934 · paper #fffdf9 · pal sage #a9c4ae / #bcd2c0 / #e4ece4 · koala jacket #7b756d
+   walls #f5f0e7 (left) / #e9e1d4 (right) · floor #eee6d9 · slab sides #d9ccb8 / #c7b8a2
+   wood #f1e9dc / #e4d8c6 / #d6c7b1 · clay #efe7d6 · window light #fbf6ea · rug oat #e3d3b4 at 55%
+   glazes: oat #e3d3b4 · sage #b8cdbb · blush clay #dcbcab · stone #9aa3a8 */
+
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; }
+  body { background:#e9e4db; font-family:var(--font-ui); color:var(--text); padding:36px 24px 72px; }
+  button, input { font:inherit; color:inherit; }
+  .page-h { max-width:1180px; margin:0 auto 28px; }
+  .page-h h1 { margin:0; font-size:30px; font-weight:500; }
+  .page-h p { margin:6px 0 0; color:var(--text-2); font-size:14.5px; line-height:1.55; max-width:720px; }
+  .gallery { max-width:1180px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:44px 28px; justify-items:center; }
+  .shot { width:360px; }
+  .shot .lbl { font-size:13px; font-weight:600; color:var(--text-2); margin:0 0 10px 6px; }
+  .shot .lbl span { font-weight:500; color:var(--muted); }
+  .shot .note { font-size:13px; line-height:1.5; color:var(--text-2); margin:12px 6px 0; }
+
+  .phone { width:360px; height:760px; border-radius:50px; background:#1b1410; padding:10px; box-shadow:0 36px 70px -34px rgba(61,57,52,.45); }
+  .screen { position:relative; width:100%; height:100%; border-radius:41px; overflow:hidden; display:flex; flex-direction:column; }
+  .statusbar { height:46px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:4px 28px 0 32px; font-weight:600; font-size:14px; position:relative; }
+  .island { position:absolute; left:50%; top:9px; width:108px; height:31px; border-radius:18px; background:#000; transform:translateX(-50%); }
+  .sb { display:flex; gap:5px; align-items:center; }
+  .homebar { position:absolute; bottom:8px; left:50%; width:124px; height:5px; border-radius:3px; background:var(--text); transform:translateX(-50%); opacity:.8; }
+  .body { flex:1; min-height:0; display:flex; flex-direction:column; padding:0 24px 30px; }
+  .grow { flex:1; }
+
+  .nav { display:flex; align-items:center; justify-content:space-between; min-height:52px; }
+  .icon-btn { width:44px; height:44px; border-radius:50%; border:0; background:transparent; display:grid; place-items:center; cursor:pointer; margin-left:-10px; }
+  .icon-btn.r { margin-left:0; margin-right:-10px; }
+  .wordmark { font-size:21px; font-weight:500; }
+  .h1 { font-size:32px; font-weight:500; line-height:1.08; margin:8px 0 0; letter-spacing:-.3px; }
+  .sub { font-size:16px; color:var(--accent); margin-top:8px; }
+  .center { text-align:center; }
+  .btn { display:flex; align-items:center; justify-content:center; width:100%; min-height:54px; border-radius:999px; border:0; font-size:16px; font-weight:600; cursor:pointer; background:var(--accent); color:var(--on-accent); }
+  .btn:active { transform:scale(.985); }
+  .link { display:block; width:100%; min-height:48px; border:0; background:none; font-size:15px; font-weight:600; color:var(--text-2); cursor:pointer; margin-top:4px; }
+  .scene { width:100%; height:auto; display:block; }
+
+  .field { margin-top:22px; }
+  .field > label, .field > .lb { display:block; font-size:13.5px; font-weight:500; color:var(--text-2); margin-bottom:8px; }
+  .input { width:100%; min-height:50px; border-radius:16px; border:1px solid var(--line); background:var(--card); padding:0 16px; font-size:16px; outline:none; }
+  .input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .chips { display:flex; gap:8px; }
+  .chips button { flex:1; min-height:46px; border-radius:999px; border:1px solid var(--line); background:var(--card); font-size:15px; font-weight:500; cursor:pointer; }
+  .chips button[aria-pressed="true"] { background:var(--accent-soft); border-color:var(--accent); color:var(--accent-deep); font-weight:600; }
+  .total { margin-top:26px; text-align:center; font-size:15px; color:var(--text-2); }
+  .total b { font-weight:600; color:var(--text); }
+
+  .badge { position:relative; width:44px; height:44px; border-radius:50%; background:var(--sand); overflow:hidden; flex-shrink:0; }
+  .badge svg { width:100%; height:100%; display:block; }
+  .badge *, .seat * { animation:none !important; }
+  .badge .focus, .badge .zz, .seat .focus, .seat .zz { display:none; }
+
+  /* take your seat */
+  .seats { display:grid; grid-template-columns:1fr 1fr; gap:14px 14px; margin-top:20px; }
+  .seat { border:0; background:none; padding:0; cursor:pointer; display:grid; justify-items:center; gap:8px; }
+  .seat .face { width:92px; height:92px; border-radius:50%; background:var(--sand); overflow:hidden; box-shadow:0 0 0 0 transparent; transition:box-shadow .2s; }
+  .seat .face svg { width:100%; height:100%; display:block; }
+  .seat .nm { font-size:14px; font-weight:600; } .seat .st { font-size:12.5px; color:var(--muted); margin-top:-6px; }
+  .seat[aria-pressed="true"] .face { box-shadow:0 0 0 3px var(--bg), 0 0 0 5px var(--accent); }
+  .seat.taken { cursor:not-allowed; } .seat.taken .face { filter:grayscale(1) contrast(.55) brightness(1.1); opacity:.9; }
+  .seat.taken .nm { color:var(--muted); font-weight:500; }
+
+  /* lobby */
+  .people { display:flex; justify-content:center; gap:18px; margin-top:6px; }
+  .person { display:grid; justify-items:center; gap:6px; font-size:12.5px; color:var(--text-2); }
+  .person .empty { width:44px; height:44px; border-radius:50%; border:1.5px dashed rgba(61,57,52,.25); }
+  .invite { display:flex; align-items:center; gap:10px; margin:18px 0 14px; padding:6px 6px 6px 18px; border-radius:999px; background:var(--card); border:1px solid var(--line); }
+  .invite span { flex:1; font-size:14px; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .invite button { border:0; background:var(--accent-soft); color:var(--accent-deep); border-radius:999px; min-height:40px; padding:0 16px; font-size:13.5px; font-weight:600; cursor:pointer; }
+
+  /* summary */
+  .reveal { position:relative; height:250px; display:grid; place-items:end center; }
+  .reveal .disc { position:absolute; bottom:22px; width:190px; height:30px; border-radius:50%; background:var(--sand); }
+  .reveal .pot { position:relative; width:150px; height:190px; margin-bottom:34px; animation:float 7s ease-in-out infinite; }
+  @keyframes float { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-4px) } }
+  @keyframes glint { 0%,62%{ transform:translateX(-120px) } 88%,100%{ transform:translateX(140px) } }
+  .glint { animation:glint 8s ease-in-out infinite; }
+  .together { display:flex; justify-content:center; gap:16px; margin-top:24px; }
+  .together .person b { font-size:13px; color:var(--text); font-weight:600; }
+
+  /* shelf */
+  .pieces { display:flex; justify-content:space-around; align-items:flex-end; height:96px; padding:0 6px; }
+  .plank { height:10px; border-radius:3px; background:#e4d8c6; border:1px solid #cfc3b0; margin:0 -2px 22px; }
+  .shelf-line { text-align:center; font-size:14.5px; color:var(--text-2); margin-top:8px; }
+  .shelf-line b { color:var(--text); font-weight:600; }
+  .foot { font-size:12.5px; color:var(--muted); text-align:center; }
+
+  /* ---------- scene animation ---------- */
+  /* ---------- scene animation (CSS only) ---------- */
+  .pal .head { animation:nod 7s ease-in-out infinite; }
+  .pal .torso { animation:breathe 5s ease-in-out infinite; }
+  .arm { animation:shapeL 2.4s ease-in-out infinite alternate; }
+  .arm.r { animation-name:shapeR; }
+  .rings { animation:spin 2.2s linear infinite; }
+  .wheel-dash { animation:dash 2.2s linear infinite; }
+  .focus line { opacity:0; animation:spark 11s ease-in-out infinite; }
+  .zz text { opacity:0; }
+  .shut { display:none; }
+  .steam path { animation:steam 3.2s ease-in-out infinite; opacity:0; }
+  .steam path:nth-child(2){ animation-delay:1.4s; }
+  .sun { animation:sun 12s ease-in-out infinite; }
+  .leaf { animation:sway 6s ease-in-out infinite; transform-box:fill-box; transform-origin:bottom center; }
+
+  /* stagger each pal so they don't move in lockstep */
+  .p-koala *{ animation-delay:-.3s; } .p-cat *{ animation-delay:-1.7s; }
+  .p-bunny *{ animation-delay:-.9s; } .p-dog *{ animation-delay:-2.4s; }
+  .p-cat .focus line{ animation-delay:2s; } .p-bunny .focus line{ animation-delay:.2s; } .p-dog .focus line{ animation-delay:4s; } .p-koala .focus line{ animation-delay:3.1s; }
+
+  /* ---------- away / dozing ---------- */
+  .away .body-ink { filter:grayscale(1) contrast(.55) brightness(1.12); transition:opacity .6s, filter .6s; }
+  .away .head { animation:doze 3.6s ease-in-out infinite; }
+  .away .arm, .away .rings, .away .wheel-dash, .away .torso { animation-play-state:paused; }
+  .away .open { display:none; } .away .shut { display:inline; }
+  .away .focus { display:none; }
+  .away .zz text { animation:zfloat 3s ease-in infinite; }
+  .away .zz text:nth-child(2){ animation-delay:1s; } .away .zz text:nth-child(3){ animation-delay:2s; }
+  .away .piece { filter:grayscale(.6); }
+
+  @keyframes nod     { 0%,100%{ transform:rotate(0) } 50%{ transform:rotate(-1.5deg) translateY(.4px) } }
+  @keyframes breathe { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-.6px) } }
+  @keyframes shapeL  { from{ transform:rotate(-1.2deg) } to{ transform:rotate(1deg) } }
+  @keyframes shapeR  { from{ transform:rotate(1.2deg) } to{ transform:rotate(-1deg) } }
+  @keyframes spin    { from{ transform:translateX(0) } to{ transform:translateX(8px) } }
+  @keyframes dash    { to{ stroke-dashoffset:-12 } }
+  @keyframes spark   { 0%,78%{ opacity:0 } 84%,90%{ opacity:.9 } 96%,100%{ opacity:0 } }
+  @keyframes doze    { 0%,100%{ transform:rotate(9deg) translateY(3px) } 50%{ transform:rotate(11deg) translateY(4px) } }
+  @keyframes zfloat  { 0%{ opacity:0; transform:translate(0,0) } 20%{ opacity:1 } 100%{ opacity:0; transform:translate(10px,-22px) } }
+  @keyframes steam   { 0%{ opacity:0; transform:translateY(4px) } 30%{ opacity:.8 } 100%{ opacity:0; transform:translateY(-12px) } }
+  @keyframes sun     { 0%,100%{ opacity:.55 } 50%{ opacity:.85 } }
+  @keyframes sway    { 0%,100%{ transform:rotate(-2.5deg) } 50%{ transform:rotate(2.5deg) } }
+
+
+
+  .beam { animation:beam 16s ease-in-out infinite; }
+  .mote { opacity:0; animation:mote 12s linear infinite; }
+  @keyframes beam { 0%,100%{ opacity:.7 } 50%{ opacity:1 } }
+  @keyframes mote { 0%{ opacity:0; transform:translate(0,0) } 15%{ opacity:.9 } 85%{ opacity:.6 } 100%{ opacity:0; transform:translate(14px,-26px) } }
+  .resting .arm, .resting .rings, .resting .wheel-dash { animation-play-state:paused; }
+  .resting .focus { display:none; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<header class="page-h">
+  <h1 class="display">Focuspal: cleaner screens</h1>
+  <p>One headline, one main action, and as little else as possible on each screen. Cyril hosts the pod, and Ashna joins it. Each screen says whose view it is. The focus screen is in <code>studio-screen-clean.html</code>.</p>
+</header>
+
+<main class="gallery">
+
+  <section class="shot">
+    <div class="lbl">Home <span>· Ashna</span></div>
+    <div class="phone"><div class="screen screen-bg">
+      <div class="statusbar"><span>9:41</span><div class="island"></div><div class="sb"><svg width="17" height="11" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#3d3934"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#3d3934"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#3d3934"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#3d3934"/></svg><svg width="15" height="11" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0z M3.5 7a6.4 6.4 0 0 1 9 0l-1.4 1.4a4.4 4.4 0 0 0-6.2 0z M1 4.4a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z" fill="#3d3934"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#3d3934" opacity=".45"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#3d3934"/></svg></div></div>
+      <div class="body">
+        <div class="nav"><span class="wordmark display">Focuspal</span><button class="icon-btn r" type="button" aria-label="My shelf"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f584f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M5 15h14"/><path d="M8 15v-3a2 2 0 0 1 4 0v3M14 15l1-5h3l1 5"/></svg></button></div>
+        <div class="grow"></div>
+        <svg class="scene resting" data-kinds="bunny" data-t="0" viewBox="14 52 372 334" role="img" aria-label="A quiet studio with your pal at the table"></svg>
+        <div class="center"><div class="h1 display">A little company.<br>A lot more focus.</div></div>
+        <div class="grow"></div>
+        <button class="btn" type="button">Start a pod</button>
+        <button class="link" type="button">I have a link</button>
+      </div>
+      <div class="homebar"></div>
+    </div></div>
+    <p class="note">One picture, one line, one button. Joining with a link is a quiet text button, because most people will arrive through the link anyway.</p>
+  </section>
+
+  <section class="shot">
+    <div class="lbl">Start a pod <span>· Cyril, host</span></div>
+    <div class="phone"><div class="screen screen-bg">
+      <div class="statusbar"><span>9:41</span><div class="island"></div><div class="sb"><svg width="17" height="11" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#3d3934"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#3d3934"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#3d3934"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#3d3934"/></svg><svg width="15" height="11" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0z M3.5 7a6.4 6.4 0 0 1 9 0l-1.4 1.4a4.4 4.4 0 0 0-6.2 0z M1 4.4a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z" fill="#3d3934"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#3d3934" opacity=".45"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#3d3934"/></svg></div></div>
+      <div class="body">
+        <div class="nav"><button class="icon-btn" type="button" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f584f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button></div>
+        <div class="h1 display" style="margin-top:0">Start a pod</div>
+        <div class="field"><label for="pn">Name</label><input class="input" id="pn" value="The afternoon pod"></div>
+        <div class="field"><div class="lb">Focus</div><div class="chips" data-group="focus"><button type="button" data-v="15">15 min</button><button type="button" data-v="25" aria-pressed="true">25 min</button><button type="button" data-v="40">40 min</button></div></div>
+        <div class="field"><div class="lb">Break</div><div class="chips" data-group="break"><button type="button" data-v="5" aria-pressed="true">5 min</button><button type="button" data-v="10">10 min</button><button type="button" data-v="15">15 min</button></div></div>
+        <div class="field"><div class="lb">Rounds</div><div class="chips" data-group="rounds"><button type="button" data-v="1">1</button><button type="button" data-v="2" aria-pressed="true">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button></div></div>
+        <div class="total" id="total"></div>
+        <div class="grow"></div>
+        <button class="btn" type="button">Continue</button>
+      </div>
+      <div class="homebar"></div>
+    </div></div>
+    <p class="note">Only the session settings. Rounds use the same chips as focus and break, so there's one kind of control. The host picks a pal on the next screen, the same way everyone does.</p>
+  </section>
+
+  <section class="shot">
+    <div class="lbl">Take your seat <span>· Ashna</span></div>
+    <div class="phone"><div class="screen screen-bg">
+      <div class="statusbar"><span>9:41</span><div class="island"></div><div class="sb"><svg width="17" height="11" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#3d3934"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#3d3934"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#3d3934"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#3d3934"/></svg><svg width="15" height="11" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0z M3.5 7a6.4 6.4 0 0 1 9 0l-1.4 1.4a4.4 4.4 0 0 0-6.2 0z M1 4.4a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z" fill="#3d3934"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#3d3934" opacity=".45"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#3d3934"/></svg></div></div>
+      <div class="body">
+        <div class="center" style="margin-top:14px"><div class="h1 display">Take your seat.</div><div class="sub display">Cyril and Maya are here</div></div>
+        <div class="seats" data-seats></div>
+        <div class="field"><label for="jn">Your name</label><input class="input" id="jn" value="Ashna"></div>
+        <div class="field"><label for="jf">What are you working on?</label><input class="input" id="jf" value="Hackathon pitch deck"></div>
+        <div class="grow"></div>
+        <button class="btn" type="button" style="margin-top:20px">Sit down</button>
+      </div>
+      <div class="homebar"></div>
+    </div></div>
+    <p class="note">Big, borderless faces. Taken pals are greyed and quietly say who has them. Two questions and you're seated.</p>
+  </section>
+
+  <section class="shot">
+    <div class="lbl">Lobby <span>· Cyril, host</span></div>
+    <div class="phone"><div class="screen screen-bg">
+      <div class="statusbar"><span>9:41</span><div class="island"></div><div class="sb"><svg width="17" height="11" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#3d3934"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#3d3934"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#3d3934"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#3d3934"/></svg><svg width="15" height="11" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0z M3.5 7a6.4 6.4 0 0 1 9 0l-1.4 1.4a4.4 4.4 0 0 0-6.2 0z M1 4.4a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z" fill="#3d3934"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#3d3934" opacity=".45"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#3d3934"/></svg></div></div>
+      <div class="body">
+        <div class="nav"><button class="icon-btn" type="button" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f584f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><span style="font-size:14px;color:var(--text-2)">The afternoon pod</span><span style="width:34px"></span></div>
+        <div class="center"><div class="h1 display" style="margin-top:0">Your table is set.</div></div>
+        <svg class="scene resting" data-kinds="dog,cat,bunny" data-t="0" viewBox="14 52 372 334" role="img" aria-label="Cyril, Maya and Ashna seated around the wheel"></svg>
+        <div class="people" data-people="dog:You,cat:Maya,bunny:Ashna,empty:Open"></div>
+        <div class="grow"></div>
+        <div class="invite"><span>focuspal.app/p/afternoon</span><button type="button" data-copy>Copy link</button></div>
+        <button class="btn" type="button">Start focusing</button>
+      </div>
+      <div class="homebar"></div>
+    </div></div>
+    <p class="note">The room fills up as people sit down. Faces and first names only, since tasks show up once you're in the studio. Guests see "Waiting for Cyril to start" where the button is.</p>
+  </section>
+
+  <section class="shot">
+    <div class="lbl">Session complete <span>· Ashna</span></div>
+    <div class="phone"><div class="screen screen-bg">
+      <div class="statusbar"><span>9:41</span><div class="island"></div><div class="sb"><svg width="17" height="11" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#3d3934"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#3d3934"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#3d3934"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#3d3934"/></svg><svg width="15" height="11" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0z M3.5 7a6.4 6.4 0 0 1 9 0l-1.4 1.4a4.4 4.4 0 0 0-6.2 0z M1 4.4a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z" fill="#3d3934"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#3d3934" opacity=".45"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#3d3934"/></svg></div></div>
+      <div class="body">
+        <div class="grow"></div>
+        <div class="reveal"><div class="disc"></div><div class="pot" data-pot="vase" data-glaze="oat"></div></div>
+        <div class="center"><div class="h1 display">A tall vase,<br>made together.</div><div class="sub display">50 minutes with your pod</div></div>
+        <div class="together" data-together="bunny:50,dog:48,koala:50,cat:41"></div>
+        <div class="grow"></div>
+        <button class="btn" type="button">Done</button>
+        <button class="link" type="button">See my shelf</button>
+      </div>
+      <div class="homebar"></div>
+    </div></div>
+    <p class="note">The pot you all shaped, calm and centered. Everyone's minutes appear as a single row of faces, with no list, no bars and no ranking. It's already on your shelf.</p>
+  </section>
+
+  <section class="shot">
+    <div class="lbl">My shelf <span>· Ashna</span></div>
+    <div class="phone"><div class="screen screen-bg">
+      <div class="statusbar"><span>9:41</span><div class="island"></div><div class="sb"><svg width="17" height="11" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#3d3934"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#3d3934"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#3d3934"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#3d3934"/></svg><svg width="15" height="11" viewBox="0 0 16 12"><path d="M8 11.5 5.6 9a3.4 3.4 0 0 1 4.8 0z M3.5 7a6.4 6.4 0 0 1 9 0l-1.4 1.4a4.4 4.4 0 0 0-6.2 0z M1 4.4a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z" fill="#3d3934"/></svg><svg width="25" height="12" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#3d3934" opacity=".45"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#3d3934"/></svg></div></div>
+      <div class="body">
+        <div class="nav"><button class="icon-btn" type="button" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f584f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button></div>
+        <div class="h1 display" style="margin-top:0">My shelf</div>
+        <div class="grow"></div>
+        <div class="pieces" data-shelf="vase:oat,bowl:sage,mug:cream"></div><div class="plank"></div>
+        <div class="pieces" data-shelf="cup:terracotta,vase:stone,bowl:oat"></div><div class="plank"></div>
+        <div class="pieces" data-shelf="mug:sage"></div><div class="plank"></div>
+        <div class="shelf-line"><b>7 pieces</b> · 6h 20m of focus</div>
+        <div class="grow"></div>
+        <div class="foot">Kept on this device</div>
+      </div>
+      <div class="homebar"></div>
+    </div></div>
+    <p class="note">Just the shelf and one line. No streaks, no charts, no history list. The collection is the reward.</p>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  var INK = '#3d3934', PAPER = '#fffdf9', MINT = '#a9c4ae', MINT_SOFT = '#e4ece4', CLAY = '#efe7d6', WOOD = '#f1e9dc', WOOD_S = '#e4d8c6', WOOD_D = '#d6c7b1';
+  var HW = 26, HH = 13, ZH = 26, OX = 200, OY = 190;
+  function P(x, y, z) { return [OX + (x - y) * HW, OY + (x + y) * HH - (z || 0) * ZH]; }
+  function f(n) { return Math.round(n * 10) / 10; }
+  function pts(a) { return a.map(function (p) { return f(p[0]) + ',' + f(p[1]); }).join(' '); }
+  function poly(a, fill, sw) { return '<polygon points="' + pts(a) + '" fill="' + fill + '" stroke="' + INK + '" stroke-width="' + (sw == null ? 1.4 : sw) + '" stroke-linejoin="round"/>'; }
+  function rectL(X0, X1, Y, Z0, Z1, c) { return poly([P(X0, Y, Z1), P(X1, Y, Z1), P(X1, Y, Z0), P(X0, Y, Z0)], c); }
+  function rectR(X, Y0, Y1, Z0, Z1, c) { return poly([P(X, Y0, Z1), P(X, Y1, Z1), P(X, Y1, Z0), P(X, Y0, Z0)], c); }
+  function rectT(X0, Y0, X1, Y1, Z, c) { return poly([P(X0, Y0, Z), P(X1, Y0, Z), P(X1, Y1, Z), P(X0, Y1, Z)], c); }
+  function box(x, y, z, w, d, h, c) { return rectL(x, x + w, y + d, z, z + h, c[1]) + rectR(x + w, y, y + d, z, z + h, c[2]) + rectT(x, y, x + w, y + d, z + h, c[0]); }
+  function ci(x, y, r, fill, extra) { return '<circle cx="' + f(x) + '" cy="' + f(y) + '" r="' + r + '" fill="' + fill + '" stroke="' + INK + '" stroke-width="1.4" ' + (extra || '') + '/>'; }
+  function el(x, y, rx, ry, fill, extra) { return '<ellipse cx="' + f(x) + '" cy="' + f(y) + '" rx="' + rx + '" ry="' + ry + '" fill="' + fill + '" stroke="' + INK + '" stroke-width="1.4" ' + (extra || '') + '/>'; }
+  function path(d, fill, sw, extra) { return '<path d="' + d + '" fill="' + (fill || 'none') + '" stroke="' + INK + '" stroke-width="' + (sw || 1.4) + '" stroke-linecap="round" stroke-linejoin="round" ' + (extra || '') + '/>'; }
+  function line(x1, y1, x2, y2, sw, col) { return '<line x1="' + f(x1) + '" y1="' + f(y1) + '" x2="' + f(x2) + '" y2="' + f(y2) + '" stroke="' + (col || INK) + '" stroke-width="' + (sw || 1.4) + '" stroke-linecap="round"/>'; }
+
+  var PALS = [
+    { kind: 'koala', name: 'Leo',   x: 0.75, y: 3.75, piece: 'jug',  sleeve: '#7b756d', hand: '#dfe2e6' },
+    { kind: 'cat',   name: 'Maya',  x: 0.75, y: 1.9,  piece: 'mug',  sleeve: PAPER,     hand: PAPER },
+    { kind: 'bunny', name: 'Ashna', x: 1.9,  y: 0.75, piece: 'bowl', sleeve: PAPER,     hand: PAPER },
+    { kind: 'dog',   name: 'Cyril', x: 3.75, y: 0.75, piece: 'mug2', sleeve: MINT,      hand: PAPER }
+  ];
+  // each pal sits behind a back edge of the table, directly "above" their piece on screen
+  PALS.forEach(function (p) { var b = P(p.x, p.y, 1.07); p.px = b[0]; p.py = b[1]; p.ax = b[0]; p.ay = b[1] - 20; });
+
+  // ---------- pal body + head (drawn behind the table) ----------
+  function eyesOpenShut(open, shut) { return '<g class="open">' + open + '</g><g class="shut">' + shut + '</g>'; }
+  function closedEye(x, y) { return path('M' + f(x - 2.8) + ' ' + f(y) + ' q2.8 2.2 5.6 0', 'none', 1.4); }
+
+  function palBody(p) {
+    var ax = p.ax, ay = p.ay, hx = ax, hy = ay - 45, s = '';
+    var torso = 'M' + (ax - 17) + ' ' + (ay + 26) + ' L' + (ax - 17) + ' ' + (ay - 18) + ' Q' + (ax - 17) + ' ' + (ay - 31) + ' ' + ax + ' ' + (ay - 31) + ' Q' + (ax + 17) + ' ' + (ay - 31) + ' ' + (ax + 17) + ' ' + (ay - 18) + ' L' + (ax + 17) + ' ' + (ay + 26) + ' Z';
+    var t = '', h = '', before = '';
+
+    if (p.kind === 'koala') {
+      t += path(torso, '#7b756d');
+      t += path('M' + (ax - 7) + ' ' + (ay - 30) + ' L' + ax + ' ' + (ay - 15) + ' L' + (ax + 7) + ' ' + (ay - 30), PAPER, 1.2);
+      t += line(ax - 9, ay - 29, ax - 3, ay - 12, 2.2, MINT) + line(ax + 9, ay - 29, ax + 3, ay - 12, 2.2, MINT);
+      before += ci(hx - 15, hy - 8, 10.5, '#cfd3d9') + ci(hx + 15, hy - 8, 10.5, '#cfd3d9');
+      before += '<circle cx="' + (hx - 15) + '" cy="' + (hy - 8) + '" r="5" fill="#f5f5f5"/><circle cx="' + (hx + 15) + '" cy="' + (hy - 8) + '" r="5" fill="#f5f5f5"/>';
+      h += ci(hx, hy, 16, '#dfe2e6');
+      h += eyesOpenShut(
+        '<circle cx="' + (hx - 6) + '" cy="' + (hy - 2) + '" r="1.5" fill="' + INK + '"/><circle cx="' + (hx + 6) + '" cy="' + (hy - 2) + '" r="1.5" fill="' + INK + '"/>',
+        closedEye(hx - 6, hy - 2) + closedEye(hx + 6, hy - 2));
+      h += '<circle cx="' + (hx - 6) + '" cy="' + (hy - 2) + '" r="5" fill="none" stroke="' + INK + '" stroke-width="1.3"/><circle cx="' + (hx + 6) + '" cy="' + (hy - 2) + '" r="5" fill="none" stroke="' + INK + '" stroke-width="1.3"/>' + line(hx - 1, hy - 2, hx + 1, hy - 2, 1.3);
+      h += el(hx, hy + 6, 4.5, 5.5, INK);
+    }
+    if (p.kind === 'cat') {
+      t += path(torso, PAPER);
+      t += path('M' + (ax - 11) + ' ' + (ay - 20) + ' L' + (ax + 11) + ' ' + (ay - 20) + ' L' + (ax + 13) + ' ' + (ay + 26) + ' L' + (ax - 13) + ' ' + (ay + 26) + ' Z', INK);
+      t += line(ax - 11, ay - 20, ax - 6, ay - 30, 1.6) + line(ax + 11, ay - 20, ax + 6, ay - 30, 1.6);
+      before += poly([[hx - 14, hy - 5], [hx - 12, hy - 22], [hx - 3, hy - 13]], PAPER) + poly([[hx + 14, hy - 5], [hx + 12, hy - 22], [hx + 3, hy - 13]], PAPER);
+      h += ci(hx, hy, 15, PAPER);
+      h += path('M' + (hx - 13) + ' ' + (hy - 6) + ' Q' + (hx - 8) + ' ' + (hy - 16) + ' ' + (hx + 1) + ' ' + (hy - 14) + ' Q' + (hx - 2) + ' ' + (hy - 8) + ' ' + (hx - 9) + ' ' + (hy - 5) + ' Z', INK, 1);
+      h += eyesOpenShut(
+        line(hx - 8.5, hy - 2.5, hx - 3, hy - 1.6, 1.5) + line(hx + 8.5, hy - 2.5, hx + 3, hy - 1.6, 1.5) +
+        '<circle cx="' + (hx - 5.6) + '" cy="' + (hy - 0.3) + '" r="1.4" fill="' + INK + '"/><circle cx="' + (hx + 5.6) + '" cy="' + (hy - 0.3) + '" r="1.4" fill="' + INK + '"/>',
+        closedEye(hx - 5.6, hy - 1) + closedEye(hx + 5.6, hy - 1));
+      h += poly([[hx - 1.5, hy + 3.5], [hx + 1.5, hy + 3.5], [hx, hy + 5]], INK, 1);
+      h += path('M' + (hx - 3) + ' ' + (hy + 7) + ' q1.5 1.2 3 0 q1.5 1.2 3 0', 'none', 1.1);
+      h += line(hx - 7, hy + 4, hx - 20, hy + 2, 1) + line(hx - 7, hy + 6, hx - 20, hy + 7, 1) + line(hx + 7, hy + 4, hx + 20, hy + 2, 1) + line(hx + 7, hy + 6, hx + 20, hy + 7, 1);
+    }
+    if (p.kind === 'bunny') {
+      t += path(torso, PAPER);
+      [-24, -16, -8, 0, 8].forEach(function (dy) { t += line(ax - 15.5, ay + dy, ax + 15.5, ay + dy, 3.4, '#bcd2c0'); });
+      t += path('M' + (ax - 9) + ' ' + (ay - 14) + ' L' + (ax + 9) + ' ' + (ay - 14) + ' L' + (ax + 11) + ' ' + (ay + 26) + ' L' + (ax - 11) + ' ' + (ay + 26) + ' Z', INK);
+      t += line(ax - 9, ay - 14, ax - 6, ay - 30, 1.6) + line(ax + 9, ay - 14, ax + 6, ay - 30, 1.6);
+      before += '<ellipse cx="' + (hx - 6) + '" cy="' + (hy - 30) + '" rx="4.8" ry="18" fill="' + INK + '" transform="rotate(-9 ' + (hx - 6) + ' ' + (hy - 14) + ')"/>';
+      before += '<ellipse cx="' + (hx + 7) + '" cy="' + (hy - 31) + '" rx="4.8" ry="18" fill="' + INK + '" transform="rotate(11 ' + (hx + 7) + ' ' + (hy - 14) + ')"/>';
+      h += ci(hx, hy, 15, PAPER);
+      h += eyesOpenShut(
+        path('M' + (hx - 8.5) + ' ' + (hy - 1) + ' q2.8 2.4 5.6 0', 'none', 1.5) + path('M' + (hx + 2.9) + ' ' + (hy - 1) + ' q2.8 2.4 5.6 0', 'none', 1.5),
+        line(hx - 8.5, hy, hx - 3, hy + 0.6, 1.4) + line(hx + 3, hy + 0.6, hx + 8.5, hy, 1.4));
+      h += ci(hx, hy + 4, 1.4, INK) + path('M' + (hx - 2.5) + ' ' + (hy + 7) + ' q2.5 2 5 0', 'none', 1.1);
+    }
+    if (p.kind === 'dog') {
+      t += path(torso, MINT);
+      t += path('M' + (ax - 14) + ' ' + (ay - 27) + ' Q' + ax + ' ' + (ay - 16) + ' ' + (ax + 14) + ' ' + (ay - 27), 'none', 1.4);
+      t += line(ax - 4, ay - 21, ax - 5, ay - 8, 1.2) + line(ax + 4, ay - 21, ax + 5, ay - 8, 1.2);
+      t += path('M' + (ax - 10) + ' ' + (ay + 4) + ' h20 v12 h-20 z', 'none', 1.2);
+      h += ci(hx, hy, 15, PAPER);
+      h += path('M' + (hx - 9) + ' ' + (hy - 12) + ' Q' + hx + ' ' + (hy - 19) + ' ' + (hx + 9) + ' ' + (hy - 12) + ' Q' + hx + ' ' + (hy - 9) + ' ' + (hx - 9) + ' ' + (hy - 12) + ' Z', INK, 1);
+      h += eyesOpenShut(
+        '<circle cx="' + (hx - 5.5) + '" cy="' + (hy - 2) + '" r="1.7" fill="' + INK + '"/><circle cx="' + (hx + 5.5) + '" cy="' + (hy - 2) + '" r="1.7" fill="' + INK + '"/>',
+        closedEye(hx - 5.5, hy - 2) + closedEye(hx + 5.5, hy - 2));
+      h += el(hx, hy + 4, 3.8, 2.8, INK) + path('M' + (hx - 3) + ' ' + (hy + 8.5) + ' q3 2 6 0', 'none', 1.1);
+      h += '<ellipse cx="' + (hx - 15) + '" cy="' + (hy + 3) + '" rx="5.8" ry="12.5" fill="' + INK + '" transform="rotate(14 ' + (hx - 15) + ' ' + (hy - 8) + ')"/>';
+      h += '<ellipse cx="' + (hx + 15) + '" cy="' + (hy + 3) + '" rx="5.8" ry="12.5" fill="' + INK + '" transform="rotate(-14 ' + (hx + 15) + ' ' + (hy - 8) + ')"/>';
+    }
+
+    var focus = '<g class="focus">' +
+      line(hx - 24, hy - 14, hx - 19, hy - 11, 2.2, MINT) + line(hx - 20, hy - 24, hx - 16, hy - 19, 2.2, MINT) +
+      line(hx + 24, hy - 14, hx + 19, hy - 11, 2.2, MINT) + line(hx + 20, hy - 24, hx + 16, hy - 19, 2.2, MINT) + '</g>';
+    var zz = '<g class="zz" font-family="ui-rounded, system-ui" font-weight="700" fill="' + INK + '">' +
+      '<text x="' + (hx + 17) + '" y="' + (hy - 18) + '" font-size="10">z</text>' +
+      '<text x="' + (hx + 20) + '" y="' + (hy - 20) + '" font-size="12">z</text>' +
+      '<text x="' + (hx + 23) + '" y="' + (hy - 22) + '" font-size="14">z</text></g>';
+
+    s += '<g class="body-ink">';
+    s += '<g class="torso">' + t + '</g>';
+    s += '<g class="head" style="transform-origin:' + hx + 'px ' + (ay - 30) + 'px">' + before + h + '</g>';
+    s += '</g>' + focus + zz;
+    return '<g class="pal p-' + p.kind + '">' + s + '</g>';
+  }
+
+  // ---------- pieces on turntables ----------
+  function piece(p) {
+    var x = p.px, y = p.py, id = 'clip-' + p.kind, body, top, extra = '', h, glaze = '';
+    if (p.piece === 'jug') {
+      h = 34;
+      body = 'M' + (x - 8) + ' ' + y + ' Q' + (x - 14) + ' ' + (y - 10) + ' ' + (x - 11) + ' ' + (y - 20) + ' Q' + (x - 6) + ' ' + (y - 28) + ' ' + (x - 7) + ' ' + (y - 34) + ' L' + (x + 7) + ' ' + (y - 34) + ' Q' + (x + 6) + ' ' + (y - 28) + ' ' + (x + 11) + ' ' + (y - 20) + ' Q' + (x + 14) + ' ' + (y - 10) + ' ' + (x + 8) + ' ' + y + ' Z';
+      top = el(x, y - 34, 7, 2.5, '#e4dac4');
+      extra = path('M' + (x + 10) + ' ' + (y - 27) + ' q9 2 6 12 q-2 4 -5 3', 'none', 1.4);
+    } else if (p.piece === 'bowl') {
+      h = 13;
+      body = 'M' + (x - 17) + ' ' + (y - 13) + ' Q' + (x - 16) + ' ' + y + ' ' + x + ' ' + y + ' Q' + (x + 16) + ' ' + y + ' ' + (x + 17) + ' ' + (y - 13) + ' Z';
+      top = el(x, y - 13, 17, 4.5, '#e4dac4');
+      glaze = path('M' + (x - 15) + ' ' + (y - 8) + ' Q' + x + ' ' + (y - 3) + ' ' + (x + 15) + ' ' + (y - 8), 'none', 2.4, 'stroke="' + MINT + '"');
+    } else {
+      h = 19;
+      body = 'M' + (x - 10) + ' ' + (y - 19) + ' L' + (x - 10) + ' ' + y + ' A10 3.4 0 0 0 ' + (x + 10) + ' ' + y + ' L' + (x + 10) + ' ' + (y - 19) + ' Z';
+      top = el(x, y - 19, 10, 3.4, '#e4dac4');
+      extra = path('M' + (x + 10) + ' ' + (y - 15) + ' q8 0 8 6 q0 6 -8 6', 'none', 1.5);
+      if (p.piece === 'mug2') glaze = '<path d="M' + (x - 10) + ' ' + (y - 8) + ' h20 v5 h-20 z" fill="' + MINT_SOFT + '" stroke="none"/>';
+    }
+    var rings = '';
+    for (var i = -4; i <= 6; i++) { var rx = x - 20 + i * 8; rings += path('M' + rx + ' ' + (y - h + 3) + ' q2.5 ' + ((h - 5) / 2) + ' 0 ' + (h - 5), 'none', 1, 'opacity=".28"'); }
+    var s = '';
+    s += el(x, y + 1, 17, 6, '#e2d6bf');
+    s += '<ellipse class="wheel-dash" cx="' + f(x) + '" cy="' + f(y + 1) + '" rx="13" ry="4.4" fill="none" stroke="' + INK + '" stroke-width="1" stroke-dasharray="3 3" opacity=".45"/>';
+    s += '<defs><clipPath id="' + id + '"><path d="' + body + '"/></clipPath></defs>';
+    s += '<g class="piece">' + extra + path(body, CLAY) + glaze;
+    s += '<g clip-path="url(#' + id + ')"><g class="rings">' + rings + '</g></g>' + top + '</g>';
+    return '<g class="p-' + p.kind + '">' + s + '</g>';
+  }
+
+  // ---------- arms (drawn over the table so hands can reach the piece) ----------
+  function arms(p) {
+    var ax = p.ax, ay = p.ay, x = p.px, y = p.py;
+    var off = { jug: [13, 18], bowl: [17, 8], mug: [12, 10], mug2: [12, 10] }[p.piece];
+    function arm(side, cls) {
+      var sx = ax + side * 15, sy = ay - 24, hx = x + side * off[0], hy = y - off[1];
+      var cx = sx + side * 7, cy = (sy + hy) / 2 + 4;
+      var d = 'M' + sx + ' ' + sy + ' Q' + cx + ' ' + cy + ' ' + hx + ' ' + hy;
+      return '<g class="arm ' + cls + '" style="transform-origin:' + sx + 'px ' + sy + 'px">' +
+        '<path d="' + d + '" stroke="' + INK + '" stroke-width="9.5" fill="none" stroke-linecap="round"/>' +
+        '<path d="' + d + '" stroke="' + p.sleeve + '" stroke-width="6.8" fill="none" stroke-linecap="round"/>' +
+        ci(hx, hy, 5.2, p.hand) + '</g>';
+    }
+    return '<g class="p-' + p.kind + '"><g class="body-ink">' + arm(-1, 'l') + arm(1, 'r') + '</g></g>';
+  }
+
+  // ---------- table + props ----------
+  var TX = 4.6, TY = 4.6, TZ = 1, TT = 0.14;
+  function leg(x, y) { return box(x, y, 0, 0.22, 0.22, TZ - TT, [WOOD, WOOD_S, WOOD_D]); }
+  function board(p) { var x0 = p.x - 0.46, x1 = p.x + 0.46, y0 = p.y - 0.46, y1 = p.y + 0.46, z0 = TZ, z1 = TZ + 0.07;
+    return rectL(x0, x1, y1, z0, z1, WOOD_S) + rectR(x1, y0, y1, z0, z1, WOOD_D) + rectT(x0, y0, x1, y1, z1, '#f7ecd6'); }
+
+  function pencilCup() {
+    var b = P(3.25, 2.1, TZ), x = b[0], y = b[1], s = '';
+    [[-5, -30, '#3d3934'], [-1, -34, MINT], [3, -29, '#3d3934'], [6, -32, '#b5aea4']].forEach(function (q) { s += line(x + q[0], y - 12, x + q[0] * 1.6, y + q[1], 2, q[2]); });
+    s += path('M' + (x - 8) + ' ' + (y - 16) + ' L' + (x - 8) + ' ' + y + ' A8 3 0 0 0 ' + (x + 8) + ' ' + y + ' L' + (x + 8) + ' ' + (y - 16) + ' Z', INK);
+    s += el(x, y - 16, 8, 3, '#8a837a');
+    return s;
+  }
+  function coffee() {
+    var b = P(2.1, 3.3, TZ), x = b[0], y = b[1];
+    return '<g class="steam">' + path('M' + (x - 3) + ' ' + (y - 20) + ' q-3 -5 0 -9 q3 -4 0 -8', 'none', 1.2, 'opacity=".8"') + path('M' + (x + 3) + ' ' + (y - 20) + ' q3 -5 0 -9 q-3 -4 0 -8', 'none', 1.2) + '</g>' +
+      path('M' + (x + 8) + ' ' + (y - 12) + ' q7 0 7 5 q0 5 -7 5', 'none', 1.5) +
+      path('M' + (x - 8) + ' ' + (y - 15) + ' L' + (x - 8) + ' ' + y + ' A8 3 0 0 0 ' + (x + 8) + ' ' + y + ' L' + (x + 8) + ' ' + (y - 15) + ' Z', PAPER) +
+      '<path d="M' + (x - 8) + ' ' + (y - 7) + ' h16 v4 h-16 z" fill="' + MINT_SOFT + '"/>' + el(x, y - 15, 8, 3, '#6d5a45');
+  }
+  function cloth() {
+    var z = TZ + 0.01;
+    return poly([P(2.75, 2.85, z), P(3.45, 2.8, z), P(3.55, 3.45, z), P(2.8, 3.5, z)], MINT) +
+      (function () { var a = P(2.9, 3.0, z), b = P(3.4, 2.97, z); return line(a[0], a[1], b[0], b[1], 1, INK); })();
+  }
+  var W0 = -1.2, W1 = 5.8, WH = 3.9;
+  function room() {
+    var s = '<ellipse cx="' + P(W1, W1, 0)[0] + '" cy="' + (P(W1, W1, 0)[1] + 14) + '" rx="170" ry="26" fill="#e9e1d3" opacity=".95"/>' +
+      '<ellipse cx="' + (P(W1, W1, 0)[0] + 150) + '" cy="' + (P(W1, W1, 0)[1] + 22) + '" rx="16" ry="4" fill="#e9e1d3" opacity=".9"/>';
+    s += rectL(W0, W1, W1, -0.38, 0, '#d9ccb8') + rectR(W1, W0, W1, -0.38, 0, '#c7b8a2');
+    s += rectT(W0, W0, W1, W1, 0, '#eee6d9');
+    for (var k = 0; k < 6; k++) { var a = P(W0 + k * 1.1 + 0.55, W0, 0), b = P(W0 + k * 1.1 + 0.55, W1, 0); s += line(a[0], a[1], b[0], b[1], 0.7, '#dcd1c0'); }
+    s += rectR(W0, W0, W1, 0, WH, '#f5f0e7') + rectL(W0, W1, W0, 0, WH, '#e9e1d4');
+    // window on the left wall, with a soft patch of light on the floor
+    s += rectR(W0, 0.5, 2.7, 1.8, 3.35, '#fbf6ea');
+    var m1 = P(W0, 1.6, 1.8), m2 = P(W0, 1.6, 3.35), m3 = P(W0, 0.5, 2.6), m4 = P(W0, 2.7, 2.6);
+    s += line(m1[0], m1[1], m2[0], m2[1], 1.2) + line(m3[0], m3[1], m4[0], m4[1], 1.2);
+    // sunbeam from the window: a soft volume, a warm patch that drifts with the round, and dust motes
+    s += '<g class="sunpatch"><ellipse cx="' + f(P(-0.7, 2.6, 0)[0]) + '" cy="' + f(P(-0.7, 2.6, 0)[1]) + '" rx="46" ry="20" fill="url(#patchG)"/></g>';
+    s += '<polygon class="beam" points="' + pts([P(W0, 0.5, 3.35), P(W0, 2.7, 3.35), P(-0.3, 3.9, 0), P(-0.3, 1.5, 0)]) + '" fill="url(#beamG)"/>';
+    [[-1.2, 1.2, 2.6, 0], [-1.0, 2.1, 2.0, 3], [-0.8, 1.6, 1.4, 6], [-1.1, 2.6, 1.1, 1.5], [-0.6, 2.2, 0.8, 8], [-1.3, 1.8, 3.0, 4.5], [-0.9, 2.9, 1.8, 9.5]].forEach(function (m) {
+      var q = P(m[0], m[1], m[2]); s += '<circle class="mote" cx="' + f(q[0]) + '" cy="' + f(q[1]) + '" r="1.1" fill="#fffaf0" style="animation-delay:-' + m[3] + 's"/>';
+    });
+    // shelf of finished pieces on the right wall: the pod's collection
+    s += box(0.9, W0, 2.55, 3.9, 0.38, 0.09, [WOOD, WOOD_S, WOOD_D]);
+    [[1.4, 'vase'], [2.3, 'bowl'], [3.1, 'cup'], [3.9, 'vase2']].forEach(function (q) { s += mini(q[1], P(q[0], W0 + 0.2, 2.64)); });
+    // string lights along the top of the right wall
+    var d = '', bulbs = '';
+    for (var i = 0; i <= 28; i++) {
+      var x = W0 + 0.2 + i * 0.23, u = ((x - W0 - 0.2) % 2.2) / 2.2, z = 3.62 - 0.28 * Math.sin(Math.PI * u), q = P(x, W0 + 0.02, z);
+      d += (i ? ' L' : 'M') + f(q[0]) + ' ' + f(q[1]);
+      if (i % 2 === 1) bulbs += '<g class="bulb" style="animation-delay:-' + ((i * 0.83) % 5).toFixed(2) + 's"><circle cx="' + f(q[0]) + '" cy="' + f(q[1] + 3.5) + '" r="7" fill="url(#bulbG)"/><circle cx="' + f(q[0]) + '" cy="' + f(q[1] + 3.5) + '" r="2.2" fill="#f6e7c4" stroke="' + INK + '" stroke-width=".9"/></g>';
+    }
+    s += '<path d="' + d + '" fill="none" stroke="' + INK + '" stroke-width=".9" opacity=".7"/>' + bulbs;
+    s += rug();
+    return s;
+  }
+  function mini(k, b) {
+    var x = b[0], y = b[1];
+    if (k === 'bowl') return path('M' + (x - 9) + ' ' + (y - 6) + ' Q' + (x - 8) + ' ' + y + ' ' + x + ' ' + y + ' Q' + (x + 8) + ' ' + y + ' ' + (x + 9) + ' ' + (y - 6) + ' Z', MINT_SOFT, 1.2) + el(x, y - 6, 9, 2.4, '#e4dac4', 'stroke-width="1.2"');
+    if (k === 'cup') return path('M' + (x - 5) + ' ' + (y - 10) + ' L' + (x - 5) + ' ' + y + ' L' + (x + 5) + ' ' + y + ' L' + (x + 5) + ' ' + (y - 10) + ' Z', CLAY, 1.2) + el(x, y - 10, 5, 1.8, '#e4dac4', 'stroke-width="1.2"');
+    var tall = k === 'vase' ? 20 : 14, fill = k === 'vase' ? MINT : CLAY;
+    return path('M' + (x - 4) + ' ' + y + ' Q' + (x - 9) + ' ' + (y - tall * 0.4) + ' ' + (x - 3) + ' ' + (y - tall) + ' L' + (x + 3) + ' ' + (y - tall) + ' Q' + (x + 9) + ' ' + (y - tall * 0.4) + ' ' + (x + 4) + ' ' + y + ' Z', fill, 1.2);
+  }
+  function rug() { return '<polygon points="' + pts([P(-0.9, -0.9, 0), P(5.5, -0.9, 0), P(5.5, 5.5, 0), P(-0.9, 5.5, 0)]) + '" fill="#e3d3b4" opacity=".55" stroke="' + INK + '" stroke-width="1" stroke-dasharray="2 4"/>'; }
+  function plant() {
+    var b = P(-0.95, -0.95, 0), x = b[0], y = b[1], s = '<g class="leaf">';
+    [[-14, -52, -28], [12, -50, 26], [-4, -62, -6], [-18, -38, -48], [16, -36, 50]].forEach(function (q) {
+      s += '<ellipse cx="' + (x + q[0]) + '" cy="' + (y + q[1]) + '" rx="6" ry="15" fill="#bcd2c0" stroke="' + INK + '" stroke-width="1.3" transform="rotate(' + q[2] + ' ' + (x + q[0]) + ' ' + (y + q[1]) + ')"/>';
+    });
+    s += '</g>';
+    return s + path('M' + (x - 11) + ' ' + (y - 24) + ' L' + (x - 8) + ' ' + y + ' A8 3 0 0 0 ' + (x + 8) + ' ' + y + ' L' + (x + 11) + ' ' + (y - 24) + ' Z', PAPER) + el(x, y - 24, 11, 3.6, '#6d5a45');
+  }
+  function leaf(x, y, flip) {
+    var k = flip ? -1 : 1;
+    return '<g class="leaf">' + path('M' + x + ' ' + y + ' q' + (8 * k) + ' -10 ' + (4 * k) + ' -20', 'none', 1.8, 'stroke="' + MINT + '"') +
+      path('M' + (x + 2 * k) + ' ' + (y - 8) + ' q' + (8 * k) + ' -2 ' + (10 * k) + ' -8', 'none', 1.8, 'stroke="' + MINT + '"') + '</g>';
+  }
+
+
+
+  // ================= cleaner scene: fewer objects, one shared pot =================
+  var DEFS = '<defs>' +
+    '<linearGradient id="beamG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff8e6" stop-opacity=".95"/><stop offset="1" stop-color="#fff8e6" stop-opacity=".12"/></linearGradient>' +
+    '<radialGradient id="patchG"><stop offset="0" stop-color="#fff6e0" stop-opacity=".95"/><stop offset="1" stop-color="#fff6e0" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="potShade" x1="0" x2="1"><stop offset="0" stop-color="#6b5a45" stop-opacity=".22"/><stop offset=".34" stop-color="#fff" stop-opacity=".3"/><stop offset=".56" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#6b5a45" stop-opacity=".26"/></linearGradient>' +
+    '</defs>';
+
+  function room() {
+    var s = '<ellipse cx="' + P(W1, W1, 0)[0] + '" cy="' + (P(W1, W1, 0)[1] + 14) + '" rx="168" ry="24" fill="#e9e1d3" opacity=".8"/>';
+    s += rectL(W0, W1, W1, -0.38, 0, '#d9ccb8') + rectR(W1, W0, W1, -0.38, 0, '#c7b8a2');
+    s += rectT(W0, W0, W1, W1, 0, '#eee6d9');
+    s += rectR(W0, W0, W1, 0, WH, '#f5f0e7') + rectL(W0, W1, W0, 0, WH, '#e9e1d4');
+    // window and its light
+    s += rectR(W0, 0.5, 2.7, 1.8, 3.35, '#fbf6ea');
+    var m1 = P(W0, 1.6, 1.8), m2 = P(W0, 1.6, 3.35), m3 = P(W0, 0.5, 2.6), m4 = P(W0, 2.7, 2.6);
+    s += line(m1[0], m1[1], m2[0], m2[1], 1.1) + line(m3[0], m3[1], m4[0], m4[1], 1.1);
+    s += '<g class="sunpatch"><ellipse cx="' + f(P(-0.7, 2.6, 0)[0]) + '" cy="' + f(P(-0.7, 2.6, 0)[1]) + '" rx="46" ry="20" fill="url(#patchG)"/></g>';
+    s += '<polygon class="beam" points="' + pts([P(W0, 0.5, 3.35), P(W0, 2.7, 3.35), P(-0.3, 3.9, 0), P(-0.3, 1.5, 0)]) + '" fill="url(#beamG)"/>';
+    [[-1.0, 1.6, 2.2, 0], [-0.8, 2.3, 1.4, 5], [-0.9, 2.8, 0.9, 9]].forEach(function (m) {
+      var q = P(m[0], m[1], m[2]); s += '<circle class="mote" cx="' + f(q[0]) + '" cy="' + f(q[1]) + '" r="1.1" fill="#fffdf9" style="animation-delay:-' + m[3] + 's"/>';
+    });
+    // one short shelf: the pod's finished pieces
+    s += box(1.5, W0, 2.55, 2.4, 0.34, 0.08, [WOOD, WOOD_S, WOOD_D]);
+    s += mini('bowl', P(2.2, W0 + 0.18, 2.63)) + mini('vase2', P(3.3, W0 + 0.18, 2.63));
+    return s;
+  }
+
+  // each pal works on their own task: an open notebook under their hands
+  function notebook(p) {
+    var z = TZ + 0.015, a = 0.32, b = 0.24, s = '';
+    s += poly([P(p.x - a, p.y - b, z), P(p.x, p.y - b, z), P(p.x, p.y + b, z), P(p.x - a, p.y + b, z)], PAPER, 1.1);
+    s += poly([P(p.x, p.y - b, z), P(p.x + a, p.y - b, z), P(p.x + a, p.y + b, z), P(p.x, p.y + b, z)], PAPER, 1.1);
+    for (var i = 1; i < 4; i++) {
+      var u = -b + i * (2 * b / 4), q1 = P(p.x + 0.06, p.y + u, z), q2 = P(p.x + a - 0.06, p.y + u, z);
+      s += line(q1[0], q1[1], q2[0], q2[1], 0.7, '#d4cbbd');
+    }
+    return '<g class="p-' + p.kind + '">' + s + '</g>';
+  }
+
+  function arms(p) {
+    var ax = p.ax, ay = p.ay, x = p.px, y = p.py;
+    function arm(side, cls) {
+      var sx = ax + side * 15, sy = ay - 24, hx = x + side * 8, hy = y - 1;
+      var cx = sx + side * 7, cy = (sy + hy) / 2 + 4, d = 'M' + sx + ' ' + sy + ' Q' + cx + ' ' + cy + ' ' + hx + ' ' + hy;
+      return '<g class="arm ' + cls + '" style="transform-origin:' + sx + 'px ' + sy + 'px">' +
+        '<path d="' + d + '" stroke="' + INK + '" stroke-width="9.5" fill="none" stroke-linecap="round"/>' +
+        '<path d="' + d + '" stroke="' + p.sleeve + '" stroke-width="6.8" fill="none" stroke-linecap="round"/>' + ci(hx, hy, 5.2, p.hand) + '</g>';
+    }
+    return '<g class="p-' + p.kind + '"><g class="body-ink">' + arm(-1, 'l') + arm(1, 'r') + '</g></g>';
+  }
+
+  // ---------- the shared pot: a lathe profile that grows from lump → cylinder → vase with progress t ----------
+  var LUMP = [[0, .85], [.17, .98], [.33, 1], [.5, .95], [.67, .82], [.83, .6], [1, .32]];
+  var MID  = [[0, .72], [.17, .76], [.33, .77], [.5, .76], [.67, .74], [.83, .72], [1, .74]];
+  var VASE = [[0, .5], [.17, .82], [.33, .95], [.5, .78], [.67, .46], [.83, .38], [1, .5]];
+  function mixP(a, b, k) { return a.map(function (p, i) { return [p[0], p[1] + (b[i][1] - p[1]) * k]; }); }
+  function profileAt(t) {
+    t = Math.max(0, Math.min(1, t));
+    if (t < 0.5) { var k = t / 0.5; return { pts: mixP(LUMP, MID, k), H: 17 + 23 * k, R: 21 - 4 * k }; }
+    var j = (t - 0.5) / 0.5; return { pts: mixP(MID, VASE, j), H: 40 + 18 * j, R: 17 + 3 * j };
+  }
+  function curve(pts, n) {
+    var out = [];
+    for (var i = 0; i < pts.length - 1; i++) {
+      var p0 = pts[Math.max(i - 1, 0)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(i + 2, pts.length - 1)];
+      for (var k = 0; k < n; k++) {
+        var t = k / n, t2 = t * t, t3 = t2 * t;
+        out.push([0, 1].map(function (j) { return 0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3); }));
+      }
+    }
+    out.push(pts[pts.length - 1]);
+    return out;
+  }
+  var potSeq = 0;
+  function sharedPotInner(t) {
+    var c = P(TX / 2, TY / 2, TZ), x = c[0], y = c[1] - 2, pr = profileAt(t), pts = curve(pr.pts, 6), H = pr.H, R = pr.R, id = 'spc' + (potSeq++);
+    function X(r, sd) { return f(x + sd * r * R); } function Y(h) { return f(y - h * H); }
+    var s = '';
+    // the wheel
+    s += el(x, y + 5, 33, 14, '#d6c7b1', 'stroke-width="1.2"') + el(x, y + 1, 33, 14, '#ebe2d4', 'stroke-width="1.2"');
+    s += '<ellipse class="wheel-dash" cx="' + f(x) + '" cy="' + f(y + 1) + '" rx="26" ry="10.5" fill="none" stroke="' + INK + '" stroke-width=".9" stroke-dasharray="3 4" opacity=".35"/>';
+    // the pot
+    var r0 = pts[0][1] * R, rt = pts[pts.length - 1][1] * R;
+    var d = 'M' + X(pts[0][1], 1) + ' ' + Y(0);
+    pts.forEach(function (p) { d += ' L' + X(p[1], 1) + ' ' + Y(p[0]); });
+    pts.slice().reverse().forEach(function (p) { d += ' L' + X(p[1], -1) + ' ' + Y(p[0]); });
+    d += ' A' + f(r0) + ' ' + f(r0 * 0.45) + ' 0 0 0 ' + X(pts[0][1], 1) + ' ' + Y(0) + ' Z';
+    var rings = '';
+    for (var i = -6; i <= 8; i++) { var rx = x - 30 + i * 8; rings += path('M' + rx + ' ' + f(y - H + 4) + ' q2.5 ' + f((H - 6) / 2) + ' 0 ' + f(H - 6), 'none', 1, 'opacity=".22"'); }
+    s += '<defs><clipPath id="' + id + '"><path d="' + d + '"/></clipPath></defs>';
+    s += '<g clip-path="url(#' + id + ')"><rect x="' + (x - 40) + '" y="' + (y - 80) + '" width="80" height="90" fill="' + CLAY + '"/><g class="rings">' + rings + '</g>' +
+      '<rect x="' + f(x - R) + '" y="' + (y - 80) + '" width="' + f(2 * R) + '" height="90" fill="url(#potShade)"/></g>';
+    s += path(d, 'none', 1.3);
+    s += el(x, +Y(1), f(rt), f(rt * 0.45), t > 0.25 ? '#d8cab3' : CLAY, 'stroke-width="1.3"');
+    if (t > 0.25) s += '<ellipse cx="' + f(x) + '" cy="' + f(+Y(1) + rt * 0.1) + '" rx="' + f(rt * 0.78) + '" ry="' + f(rt * 0.32) + '" fill="#c8b89f"/>';
+    return s;
+  }
+
+  function buildScene(kinds, t, tap) {
+    var list = PALS.filter(function (p) { return kinds.indexOf(p.kind) >= 0; });
+    var svg = DEFS + room() + plant();
+    svg += leg(0.15, 0.15) + leg(TX - 0.37, 0.15) + leg(0.15, TY - 0.37);
+    list.slice().sort(function (a, b) { return (a.x + a.y) - (b.x + b.y); }).forEach(function (p) { svg += palBody(p); });
+    svg += leg(TX - 0.37, TY - 0.37);
+    svg += rectL(0, TX, TY, TZ - TT, TZ, WOOD_S) + rectR(TX, 0, TY, TZ - TT, TZ, WOOD_D) + rectT(0, 0, TX, TY, TZ, WOOD);
+    list.forEach(function (p) { svg += notebook(p); });
+    list.forEach(function (p) { svg += arms(p); });
+    svg += '<g class="shared-pot">' + sharedPotInner(t) + '</g>';
+    svg += coffee();
+    if (tap) list.forEach(function (p) {
+      svg += '<rect data-kind="' + p.kind + '" x="' + (p.ax - 24) + '" y="' + (p.ay - 82) + '" width="48" height="104" fill="transparent" style="cursor:pointer"><title>' + p.name + '</title></rect>';
+    });
+    return svg;
+  }
+
+
+  document.querySelectorAll('svg.scene').forEach(function (s) { s.innerHTML = buildScene(s.dataset.kinds.split(','), +s.dataset.t, false); });
+  function portrait(kind, vb) {
+    var p = PALS.filter(function (q) { return q.kind === kind; })[0];
+    return '<svg viewBox="' + vb + '" aria-hidden="true">' + palBody({ kind: kind, ax: 50, ay: 92, piece: p.piece }) + '</svg>';
+  }
+  function badge(kind) { return portrait(kind, '23 27 54 54'); }
+
+  // pots on the summary and shelf: the same lathe idea, drawn front-on
+  var PROFILES = { vase: [[0, .42], [.18, .78], [.42, .95], [.62, .7], [.8, .36], [.92, .34], [1, .46]], bowl: [[0, .38], [.2, .66], [.55, .9], [1, 1]], mug: [[0, .64], [.04, .68], [.5, .7], [1, .68]], cup: [[0, .5], [.3, .62], [1, .74]] };
+  var GLAZE = { oat: '#e3d3b4', sage: '#b8cdbb', cream: '#f1ebe0', terracotta: '#dcbcab', stone: '#aab2b6' };
+  var pn = 0;
+  function pot(kind, glaze, W, H, glint) {
+    var id = 'fp' + (pn++), R = W * 0.42, cx = W / 2, base = H - W * 0.08, top = W * 0.1, h = base - top, g = GLAZE[glaze], sw = Math.max(1.2, W / 95);
+    var pts = curve(PROFILES[kind], 8);
+    function X(r, s) { return (cx + s * r * R).toFixed(1); } function Y(t) { return (base - t * h).toFixed(1); }
+    var r0 = pts[0][1] * R, rt = pts[pts.length - 1][1] * R, d = 'M' + X(pts[0][1], 1) + ' ' + Y(0);
+    pts.forEach(function (p) { d += ' L' + X(p[1], 1) + ' ' + Y(p[0]); });
+    pts.slice().reverse().forEach(function (p) { d += ' L' + X(p[1], -1) + ' ' + Y(p[0]); });
+    d += ' A' + r0.toFixed(1) + ' ' + (r0 * .26).toFixed(1) + ' 0 0 0 ' + X(pts[0][1], 1) + ' ' + Y(0) + ' Z';
+    var dip = base - h * 0.42, s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="100%" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="' + d + '"/></clipPath></defs>';
+    if (kind === 'mug') { var hd = 'M' + X(.68, 1) + ' ' + Y(.78) + ' q' + (R * .55).toFixed(1) + ' 0 ' + (R * .55).toFixed(1) + ' ' + (h * .26).toFixed(1) + ' q0 ' + (h * .26).toFixed(1) + ' -' + (R * .55).toFixed(1) + ' ' + (h * .26).toFixed(1);
+      s += '<path d="' + hd + '" fill="none" stroke="' + INK + '" stroke-width="' + (sw * 3.2).toFixed(1) + '" stroke-linecap="round"/><path d="' + hd + '" fill="none" stroke="' + g + '" stroke-width="' + (sw * 1.6).toFixed(1) + '" stroke-linecap="round"/>'; }
+    s += '<g clip-path="url(#' + id + ')"><rect width="' + W + '" height="' + H + '" fill="#efe7d6"/><path d="M0 ' + dip.toFixed(1) + ' Q' + (W * .3) + ' ' + (dip + h * .06).toFixed(1) + ' ' + (W * .55) + ' ' + (dip - h * .02).toFixed(1) + ' T' + W + ' ' + (dip + h * .03).toFixed(1) + ' V0 H0Z" fill="' + g + '"/>';
+    s += '<rect x="' + (cx - R) + '" width="' + (2 * R) + '" height="' + H + '" fill="url(#potShade)"/>';
+    if (glint) s += '<rect class="glint" x="' + (cx - 14) + '" width="14" height="' + H + '" fill="#fff" opacity=".35" transform="skewX(-18)"/>';
+    s += '</g><path d="' + d + '" fill="none" stroke="' + INK + '" stroke-width="' + sw + '"/>';
+    s += '<ellipse cx="' + cx + '" cy="' + Y(1) + '" rx="' + rt.toFixed(1) + '" ry="' + (rt * .26).toFixed(1) + '" fill="#d8cab3" stroke="' + INK + '" stroke-width="' + sw + '"/>';
+    return s + '</svg>';
+  }
+  // a hidden defs holder so the pot shading gradient exists for these standalone svgs
+  document.body.insertAdjacentHTML('beforeend', '<svg width="0" height="0" style="position:absolute">' + DEFS + '</svg>');
+  document.querySelectorAll('[data-pot]').forEach(function (el) { el.innerHTML = pot(el.dataset.pot, el.dataset.glaze, 150, 190, true); });
+  var SIZES = { vase: [56, 82], bowl: [70, 50], mug: [52, 60], cup: [44, 56] };
+  document.querySelectorAll('[data-shelf]').forEach(function (el) {
+    el.innerHTML = el.dataset.shelf.split(',').map(function (spec) { var a = spec.split(':'), z = SIZES[a[0]]; return '<div style="width:' + z[0] + 'px;height:' + z[1] + 'px">' + pot(a[0], a[1], z[0], z[1]) + '</div>'; }).join('');
+  });
+
+  var NAMES = { bunny: 'Ashna', dog: 'Cyril', cat: 'Maya', koala: 'Leo' };
+  document.querySelectorAll('[data-together]').forEach(function (el) {
+    el.innerHTML = el.dataset.together.split(',').map(function (s) { var a = s.split(':'); return '<div class="person"><div class="badge">' + badge(a[0]) + '</div><b>' + NAMES[a[0]] + '</b>' + a[1] + ' min</div>'; }).join('');
+  });
+  document.querySelectorAll('[data-people]').forEach(function (el) {
+    el.innerHTML = el.dataset.people.split(',').map(function (s) { var a = s.split(':'); return '<div class="person">' + (a[0] === 'empty' ? '<div class="empty"></div>' : '<div class="badge">' + badge(a[0]) + '</div>') + a[1] + '</div>'; }).join('');
+  });
+
+  // take your seat
+  var TAKEN = { dog: 'Cyril', cat: 'Maya' }, SPECIES = { bunny: 'Bunny', dog: 'Dog', cat: 'Cat', koala: 'Koala' };
+  document.querySelectorAll('[data-seats]').forEach(function (el) {
+    ['bunny', 'koala', 'dog', 'cat'].forEach(function (k) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'seat' + (TAKEN[k] ? ' taken' : '');
+      b.setAttribute('aria-pressed', k === 'bunny' ? 'true' : 'false'); if (TAKEN[k]) b.setAttribute('aria-disabled', 'true');
+      b.innerHTML = '<div class="face">' + portrait(k, '20 22 60 60') + '</div><div class="nm">' + SPECIES[k] + '</div>' + (TAKEN[k] ? '<div class="st">' + TAKEN[k] + '</div>' : '');
+      b.addEventListener('click', function () { if (TAKEN[k]) return; el.querySelectorAll('.seat').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); });
+      el.appendChild(b);
+    });
+  });
+
+  // start a pod
+  var cfg = { focus: 25, break: 5, rounds: 2 };
+  function total() {
+    var m = cfg.focus * cfg.rounds + cfg.break * (cfg.rounds - 1), hrs = Math.floor(m / 60), rest = m % 60;
+    document.getElementById('total').innerHTML = '<b>' + (hrs ? hrs + 'h' + (rest ? ' ' + rest + 'm' : '') : m + ' minutes') + '</b> together';
+  }
+  document.querySelectorAll('.chips').forEach(function (g) {
+    g.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return;
+      g.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); cfg[g.dataset.group] = +b.dataset.v; total(); });
+  });
+  total();
+  document.querySelectorAll('[data-copy]').forEach(function (b) { b.addEventListener('click', function () { try { navigator.clipboard.writeText('https://focuspal.app/p/afternoon'); } catch (e) {} b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy link'; }, 1600); }); });
+})();
+</script>
+</body>
+</html>

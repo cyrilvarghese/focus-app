@@ -7,8 +7,12 @@ design/
 ├── references/
 │   └── chatgpt/      ChatGPT-generated mockups and moodboards (PNG, JPG, WebP, HTML)
 └── prototypes/       Hand-built HTML prototypes you can open in a browser
-    └── studio-scene.html   Isometric studio: four pals at one table, subtle CSS animation, tap a pal to doze
+    ├── studio-screen-clean.html      ★ Current: the focus screen. The shared pot grows as the pod focuses.
+    ├── focuspal-screens-clean.html   ★ Current: Home, Start a pod, Take your seat, Lobby, Session complete, My shelf
+    └── studio-scene.html             First isometric sketch of the studio (history)
 ```
+
+The current direction is **Linen & Sage**: a light, low-colour palette with one sage accent, chosen to lower anxiety. Each screen has one headline, one main action and as little else as possible.
 
 ## Adding references
 
