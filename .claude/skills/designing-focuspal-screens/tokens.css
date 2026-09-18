@@ -1,0 +1,50 @@
+/* Focuspal: "Linen & Sage", the calm light theme.
+   Goal: lower anxiety. Mostly soft neutrals and ONE muted accent (sage), with softer outlines and nothing loud.
+   Source of truth: design/prototypes/studio-screen-clean.html
+   Contrast (WCAG) is noted against --bg / --card. Every text colour passes 4.5:1 on --bg and --card. */
+
+:root {
+  /* surfaces: warm linen with a very soft glow behind the scene */
+  --bg:#f6f2eb;        /* screen base */
+  --bg-hi:#fbf8f3;     /* glow centre */
+  --bg-lo:#ece5da;     /* gentle edge vignette (muted text drops to 4.45:1 here, so keep it clear) */
+  --card:#fffdf9;      /* cards, sheets, inputs */
+  --card-2:#faf6ef;    /* card top edge (gradient start) */
+  --line:rgba(61,57,52,.10);  /* hairlines and dividers */
+
+  /* text: warm charcoal, never pure black */
+  --text:#3d3934;      /* primary text, the timer: 10.3:1 on bg */
+  --text-2:#5f584f;    /* secondary: 6.3:1 */
+  --muted:#6f675d;     /* meta and captions: 5.0 bg / 5.5 card */
+
+  /* the ONE accent */
+  --accent:#54715d;    /* sage: progress, subtitles, tags, primary buttons: 4.8 bg / 5.3 card */
+  --accent-deep:#46604e;
+  --accent-soft:#e4ece4;  /* selected chips, washes, the break segment */
+  --on-accent:#fffdf9; /* text on sage: 5.3:1 */
+
+  /* status: quiet, never alarming */
+  --live:#7fa38a;      /* focusing dot (decorative, always paired with a text label) */
+  --sleep:#bdb4a8;     /* dozing dot and badge */
+  --danger:#9c5a46;    /* Leave session, text only, never a red fill: 4.75:1 */
+  --sand:#e9e1d3;      /* floor disc under the diorama, avatar badges */
+
+  /* type */
+  --font-display: Fraunces, Georgia, serif;   /* with font-variation-settings:"SOFT" 100, "WONK" 1 */
+  --font-ui: Inter, system-ui, sans-serif;
+}
+
+/* Google Fonts:
+   https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..600,0..100,0..1&family=Inter:wght@400;500;600;700&display=swap */
+
+.display { font-family:var(--font-display); font-variation-settings:"SOFT" 100, "WONK" 1; }
+
+.screen-bg {
+  background:radial-gradient(120% 70% at 50% 58%, var(--bg-hi) 0%, var(--bg) 52%, var(--bg-lo) 100%);
+}
+
+/* scene palette (SVG). Outlines are soft charcoal, and fills stay near-neutral. */
+/* ink #3d3934 · paper #fffdf9 · pal sage #a9c4ae / #bcd2c0 / #e4ece4 · koala jacket #7b756d
+   walls #f5f0e7 (left) / #e9e1d4 (right) · floor #eee6d9 · slab sides #d9ccb8 / #c7b8a2
+   wood #f1e9dc / #e4d8c6 / #d6c7b1 · clay #efe7d6 · window light #fbf6ea · rug oat #e3d3b4 at 55%
+   glazes: oat #e3d3b4 · sage #b8cdbb · blush clay #dcbcab · stone #9aa3a8 */
