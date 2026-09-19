@@ -90,6 +90,8 @@
   .card svg { position:absolute; inset:0; width:100%; height:100%; display:block; }
   .caption { text-align:center; font-size:13.5px; color:var(--text-2); margin:0 4px; min-height:20px; }
   .caption b { font-weight:600; color:var(--text); }
+  .caption.beat { animation:beat 1.6s ease; }
+  @keyframes beat { 0%{ opacity:.35; transform:translateY(3px) } 100%{ opacity:1; transform:none } }
 
   /* ambient studio motion: slow and small */
   .light { animation:light 16s ease-in-out infinite; }
@@ -163,51 +165,8 @@
 
       <div class="stage">
         <div class="card">
-          <svg id="studio" viewBox="0 0 342 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Close-up of the shared pot on a pottery wheel in a quiet studio">
-            <defs>
-              <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efe9df"/><stop offset="1" stop-color="#e3d9ca"/></linearGradient>
-              <linearGradient id="bench" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ddd1bf"/><stop offset="1" stop-color="#d2c4b0"/></linearGradient>
-              <radialGradient id="glow" cx=".25" cy=".2" r=".7"><stop offset="0" stop-color="#fffaf0" stop-opacity=".9"/><stop offset="1" stop-color="#fffaf0" stop-opacity="0"/></radialGradient>
-              <radialGradient id="pan" cx=".5" cy=".42" r=".6"><stop offset="0" stop-color="#b9ab98"/><stop offset=".75" stop-color="#c8bba8"/><stop offset="1" stop-color="#d6cab8"/></radialGradient>
-              <radialGradient id="vig" cx=".5" cy=".55" r=".75"><stop offset=".6" stop-color="#3d3934" stop-opacity="0"/><stop offset="1" stop-color="#3d3934" stop-opacity=".16"/></radialGradient>
-              <filter id="dof" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.4"/></filter>
-              <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
-            </defs>
-
-            <!-- the studio behind, softly out of focus -->
-            <rect width="342" height="400" fill="url(#wall)"/>
-            <g class="light" filter="url(#soft)">
-              <polygon points="-10,10 96,-10 150,210 30,240" fill="#fffaf0" opacity=".85"/>
-              <polygon points="120,-10 176,-10 220,170 160,190" fill="#fffaf0" opacity=".55"/>
-            </g>
-            <rect width="342" height="400" fill="url(#glow)"/>
-            <g filter="url(#dof)" opacity=".85">
-              <rect x="186" y="118" width="170" height="8" rx="2" fill="#d4c6b1"/>
-              <rect x="186" y="126" width="170" height="4" fill="#c3b39c"/>
-              <path d="M214 118 q-10 -14 -4 -28 h14 q6 14 -4 28 z" fill="#e3d3b4"/>
-              <path d="M248 118 q-16 0 -18 -14 h36 q-2 14 -18 14 z" fill="#b8cdbb"/>
-              <path d="M290 118 v-24 h20 v24 z" fill="#efe7d6"/>
-              <path d="M326 118 q-12 -10 -6 -34 h12 q6 24 -6 34 z" fill="#aab2b6"/>
-            </g>
-            <g filter="url(#dof)" opacity=".7">
-              <g class="leaf"><ellipse cx="22" cy="176" rx="11" ry="30" fill="#b8cdbb" transform="rotate(-24 22 176)"/></g>
-              <g class="leaf" style="animation-delay:-2.4s"><ellipse cx="44" cy="160" rx="10" ry="28" fill="#a9c4ae" transform="rotate(12 44 160)"/></g>
-              <g class="leaf" style="animation-delay:-4.1s"><ellipse cx="8" cy="200" rx="10" ry="26" fill="#bcd2c0" transform="rotate(-48 8 200)"/></g>
-            </g>
-            <circle class="mote" cx="92" cy="150" r="1.3" fill="#fffdf9"/>
-            <circle class="mote" cx="120" cy="96" r="1" fill="#fffdf9" style="animation-delay:-5s"/>
-            <circle class="mote" cx="70" cy="200" r="1.1" fill="#fffdf9" style="animation-delay:-9s"/>
-
-            <!-- the bench and the wheel's splash pan -->
-            <rect x="-10" y="218" width="362" height="190" fill="url(#bench)"/>
-            <line x1="-10" y1="218" x2="352" y2="218" stroke="#3d3934" stroke-opacity=".18"/>
-            <ellipse cx="171" cy="356" rx="246" ry="112" fill="#cfc2af" stroke="#3d3934" stroke-opacity=".35" stroke-width="1.2"/>
-            <ellipse cx="171" cy="362" rx="228" ry="98" fill="url(#pan)"/>
-            <g fill="#a8977f" opacity=".55"><circle cx="58" cy="352" r="2.2"/><circle cx="74" cy="372" r="1.4"/><circle cx="286" cy="360" r="2"/><circle cx="262" cy="384" r="1.3"/><circle cx="300" cy="332" r="1.2"/></g>
-
-            <!-- the shared pot (pottery-pot.js) -->
-            <g id="potMount"></g>
-            <rect width="342" height="400" fill="url(#vig)" pointer-events="none"/>
+          <svg id="studio" viewBox="0 0 342 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="A terracotta pot being thrown on a wheel in a quiet pottery studio">
+            <defs><radialGradient id="vig" cx=".5" cy=".55" r=".75"><stop offset=".62" stop-color="#3d3934" stop-opacity="0"/><stop offset="1" stop-color="#3d3934" stop-opacity=".14"/></radialGradient></defs>
           </svg>
         </div>
         <p class="caption" id="caption"></p>
@@ -231,18 +190,20 @@
 
   <aside class="demo">
     <h3 class="display">Studio: the wheel, up close</h3>
-    <p>No pals in the scene. The pot is the hero: a close-up of the wheel in a quiet studio, sized like your reference. The window light, shelf and plant sit softly out of focus behind it. The clay is thrown from a lump into a vase across the session's focus time. The wheel slows when someone steps away, rests on breaks, and the pot is glazed at the end. The people are still one tap away in <b>Who's here</b>.</p>
+    <p>No pals in the scene. The pot is the hero, thrown on a wheel in a quiet, flat-illustrated pottery studio: shelves of finished pieces, a window onto the garden, and a splash pan. Across the session's focus time the terracotta moves through 8 stages, from a short cylinder to a tall cylinder, then a belly, a neck and a rolled lip. So the 25 minutes never feel still, small things happen on their own: about once a minute a <b>pull</b> rises up the wall, now and then a <b>water drip</b> leaves a wet sheen that slowly dries, <b>clay splatter</b> builds up on the wheel, and each new stage gets named in the caption. The wheel slows when someone steps away, rests on breaks, and the pot is finished at the end. The people are still one tap away in <b>Who's here</b>.</p>
     <div class="lbl">Step away</div>
     <div class="btns" id="awayBtns"></div>
     <div class="lbl">Time</div>
     <div class="btns"><button type="button" id="fast" aria-pressed="false">Speed up 60×</button><button type="button" id="toBreak">Jump to break</button><button type="button" id="toEnd">Jump to the end</button></div>
+    <div class="lbl">Little moments (these also happen on their own)</div>
+    <div class="btns"><button type="button" id="doPull">A pull</button><button type="button" id="doDrip">A water drip</button><button type="button" id="doStage">Next stage</button></div>
     <div class="lbl">Session</div>
     <div class="btns"><button type="button" id="endEarly">End early</button><button type="button" id="restart">New session</button></div>
     <div class="lbl">Motion</div>
     <div class="btns"><button type="button" id="rmBtn" aria-pressed="false">Reduce motion</button></div>
   </aside>
 
-<script src="pottery-pot.js"></script>
+<script src="studio-pot.js"></script>
 <script>
 (function () {
   var INK = '#3d3934', PAPER = '#fffdf9', MINT = '#a9c4ae', MINT_SOFT = '#e4ece4', CLAY = '#efe7d6', WOOD = '#f1e9dc', WOOD_S = '#e4d8c6', WOOD_D = '#d6c7b1';
@@ -486,8 +447,20 @@
   var ORDER = ['bunny', 'dog', 'cat', 'koala'], away = {};
   var app = document.getElementById('app'), peek = document.getElementById('peek');
 
-  // ---------- the big pot on the wheel ----------
-  var pot = FocusPot.create(document.getElementById('potMount'), { x: 171, y: 346, scale: 1.18, band: 11 });
+  // ---------- the studio and the pot on the wheel (studio-pot.js) ----------
+  var studio = document.getElementById('studio');
+  StudioPot.drawStudio(studio);
+  var panFront = StudioPot.drawPan(studio, 171, 300);
+  var mount = document.createElementNS('http://www.w3.org/2000/svg', 'g'); studio.appendChild(mount);
+  var STAGE_NAMES = ['Centring the clay', 'Walls pulled up', 'Easing out the belly', 'Rounding the shoulder', 'Drawing in the neck', 'Narrowing the neck', 'Flaring the lip', 'Rolling the lip'];
+  var stageName = STAGE_NAMES[0];
+  var pot = StudioPot.create(mount, { x: 171, y: 294, scale: 1.14, onStage: function (i) {
+    stageName = STAGE_NAMES[i]; if (typeof render === 'function') render();
+    var c = document.getElementById('caption'); c.classList.remove('beat'); void c.offsetWidth; c.classList.add('beat');
+  } });
+  panFront();
+  var vig = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  vig.setAttribute('width', 342); vig.setAttribute('height', 400); vig.setAttribute('fill', 'url(#vig)'); vig.setAttribute('pointer-events', 'none'); studio.appendChild(vig);
 
   // ---------- who's here ----------
   function badge(kind) {
@@ -528,11 +501,11 @@
     pot.setPace(n / 4);
     document.getElementById('peekTitle').textContent = phase === 'break' ? 'On a break together' : phase === 'done' ? 'Session complete' : phase === 'ended' ? 'Session ended' : (gone.length ? n + ' focusing · ' + gone.join(' & ') + ' dozing' : '4 focusing');
     var cap = document.getElementById('caption');
-    if (phase === 'done') cap.innerHTML = '<b>Session complete.</b> Your vase is glazed.';
+    if (phase === 'done') cap.innerHTML = '<b>Session complete.</b> Your pot is finished.';
     else if (phase === 'ended') cap.innerHTML = '<b>Session ended early.</b> The clay goes back in the bag.';
     else if (phase === 'break') cap.innerHTML = '<b>Break.</b> The wheel rests, and tea is steeping.';
     else if (gone.length) cap.innerHTML = '<b>' + gone.join(' & ') + (gone.length > 1 ? ' have' : ' has') + ' nodded off.</b> The wheel slows down.';
-    else cap.innerHTML = '<b>Everyone\'s focusing.</b> The pot is taking shape.';
+    else cap.innerHTML = '<b>Everyone\'s focusing.</b> ' + stageName + '.';
   }
   var awayBtns = document.getElementById('awayBtns');
   ORDER.forEach(function (k) {
@@ -562,6 +535,13 @@
   document.getElementById('toBreak').addEventListener('click', function () { if (phase === 'ended' || phase === 'done') start(); elapsed = F - 3; tick(); });
   document.getElementById('toEnd').addEventListener('click', function () { if (phase === 'ended' || phase === 'done') start(); elapsed = TOTAL - 4; tick(); });
   function endEarly() { if (phase === 'done' || phase === 'ended') return; phase = 'ended'; pot.setRunning(false); pot.abandon(); render(); setOpen(false); document.getElementById('timer').textContent = '00:00'; document.getElementById('cap').textContent = 'Session ended'; }
+  document.getElementById('doPull').addEventListener('click', function () { pot.pull(); });
+  document.getElementById('doDrip').addEventListener('click', function () { pot.drip(); });
+  document.getElementById('doStage').addEventListener('click', function () {
+    if (phase !== 'focus') return;
+    var next = Math.min(7, Math.floor(focusDone / (2 * F) * 7 + 0.02) + 1) / 7, need = next * 2 * F;
+    elapsed = need <= F ? need : need + B; tick();
+  });
   document.getElementById('endEarly').addEventListener('click', endEarly);
   document.getElementById('leave').addEventListener('click', endEarly);
   document.getElementById('restart').addEventListener('click', start);
