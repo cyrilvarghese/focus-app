@@ -41,3 +41,6 @@ node_modules/
 
 # licensed/stock references: keep local
 design/references/local/
+
+# Claude Code worktrees
+/.claude/worktrees/
