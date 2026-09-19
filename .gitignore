@@ -38,3 +38,6 @@ next-env.d.ts
 # brainstorm mockups
 .superpowers/
 node_modules/
+
+# licensed/stock references: keep local
+design/references/local/
