@@ -2,7 +2,7 @@
    Session progress 0 → 1 walks it through 8 stages: short cylinder → tall cylinder → belly → neck → rolled lip.
    Same API as FocusPot, plus pull() and drip() and an onStage(i) callback for the small beats between stages:
      var pot = StudioPot.create(svgGroup, { x, y, scale });
-     pot.start(); pot.setProgress(p); pot.setRunning(bool); pot.setPace(0..1); pot.complete(); pot.abandon();
+     pot.start(); pot.setProgress(p); pot.setRunning(bool); pot.setPace(0..1); pot.complete(); pot.abandon(); pot.destroy();
 */
 (function () {
   var NS = 'http://www.w3.org/2000/svg';
@@ -185,9 +185,10 @@
       var dt = st.last ? Math.min(0.1, (t - st.last) / 1000) : 0; st.last = t;
       step(dt);
       if (st.dirty) { draw(); st.dirty = false; } else if (st.speed > 0.002) placeMoving();
-      requestAnimationFrame(frame);
+      raf = requestAnimationFrame(frame);
     }
-    draw(); requestAnimationFrame(frame);
+    var raf;
+    draw(); raf = requestAnimationFrame(frame);
 
     return {
       start: function () { st.empty = false; st.collapse = -1; st.completing = false; st.done = 0; st.p = st.target = 0; st.stage = 0; st.pull = st.drip = -1; st.wet = st.flash = 0; splats = SPLAT0; showSplats(); potG.removeAttribute('display'); st.dirty = true; if (opts.onStage) opts.onStage(0); },
@@ -197,7 +198,9 @@
       setRunning: function (v) { st.running = !!v; },
       setPace: function (k) { st.pace = clamp01(k); },
       complete: function () { if (st.empty || st.collapse >= 0) return; st.target = 1; st.completing = true; },
-      abandon: function () { if (st.empty || st.collapse >= 0) return; st.completing = false; st.collapse = 0; }
+      abandon: function () { if (st.empty || st.collapse >= 0) return; st.completing = false; st.collapse = 0; },
+      // stops the animation loop and removes the pot, for pages that unmount the scene
+      destroy: function () { cancelAnimationFrame(raf); if (root.parentNode) root.parentNode.removeChild(root); }
     };
   }
   // ---------- the studio behind the wheel: flat illustration, no outlines, calm palette ----------

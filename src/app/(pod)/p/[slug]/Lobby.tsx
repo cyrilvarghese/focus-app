@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PalFace } from "@/components/pals/PalFace";
-import { SceneSlot } from "@/components/scene/SceneSlot";
+import { StudioScene } from "@/components/scene/StudioScene";
 import { getSupabase } from "@/lib/supabase/client";
 import { getPod } from "@/lib/supabase/pods";
 import type { Pod, PodMember } from "@/lib/supabase/types";
@@ -113,7 +113,7 @@ export function Lobby({ slug }: { slug: string }) {
       }
     >
       <h1 className="display text-center text-[32px] font-medium leading-[1.08] tracking-[-.3px]">Your table is set.</h1>
-      <SceneSlot />
+      <StudioScene label="The pottery studio, with the wheel resting and clay waiting" />
       <ul className="mt-1.5 flex justify-center gap-[18px]" aria-label="Who's here">
         {members.map((m) => {
           const tags = [m.user_id === me ? "You" : null, m.user_id === pod.host_id ? "Host" : null].filter(Boolean);
