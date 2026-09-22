@@ -78,3 +78,56 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .island *, .island .piece { animation: none !important; transition: none !important; }
 }
+
+/* ───────── Linen & Sage (.claude/skills/designing-focuspal-screens/tokens.css), scoped so /cover and /solo keep their look ───────── */
+.linen {
+  --bg: #f6f2eb;
+  --bg-hi: #fbf8f3;
+  --bg-lo: #ece5da;
+  --card: #fffdf9;
+  --card-2: #faf6ef;
+  --line: rgba(61, 57, 52, 0.1);
+  --text: #3d3934;
+  --text-2: #5f584f;
+  --muted: #6f675d;
+  --accent: #54715d;
+  --accent-deep: #46604e;
+  --accent-soft: #e4ece4;
+  --on-accent: #fffdf9;
+  --live: #7fa38a;
+  --sleep: #bdb4a8;
+  --danger: #9c5a46;
+  --sand: #e9e1d3;
+  color: var(--text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  background: var(--bg);
+}
+.linen .screen-bg {
+  background: radial-gradient(120% 70% at 50% 58%, var(--bg-hi) 0%, var(--bg) 52%, var(--bg-lo) 100%);
+}
+.linen .display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+}
+.linen :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+.linen input {
+  font: inherit;
+  color: inherit;
+}
+
+@theme inline {
+  --color-sage: var(--accent);
+  --color-sage-deep: var(--accent-deep);
+  --color-sage-soft: var(--accent-soft);
+  --color-on-sage: var(--on-accent);
+  --color-card: var(--card);
+  --color-text-2: var(--text-2);
+  --color-line: var(--line);
+  --color-sand: var(--sand);
+  --color-danger: var(--danger);
+  --font-display: var(--font-fraunces);
+  --font-ui: var(--font-inter);
+}
