@@ -107,7 +107,7 @@ begin
     where i.session_id = p_session_id
       and i.user_id = m.user_id
       and i.ended_at is null
-      and i.last_heartbeat_at >= v_end - interval '40 seconds'
+      and i.last_heartbeat_at >= v_end - interval '90 seconds'
   )
   where m.session_id = p_session_id;
 
@@ -204,10 +204,10 @@ begin
   limit 1
   for update;
 
-  if found and v_now - v_iv.last_heartbeat_at < interval '40 seconds' then
+  if found and v_now - v_iv.last_heartbeat_at < interval '90 seconds' then
     update public.focus_intervals set last_heartbeat_at = v_now where id = v_iv.id;
   else
-    -- Gone for more than 40 s: that stretch ended at the last check-in, and a new one starts now.
+    -- Gone for more than 90 s: that stretch ended at the last check-in, and a new one starts now.
     if found then
       update public.focus_intervals set ended_at = v_iv.last_heartbeat_at where id = v_iv.id;
     end if;

@@ -15,7 +15,7 @@
 - `src/lib/*` must not import `next/*`, `react` or DOM APIs. `src/lib/supabase` is the only module that touches the network.
 - Writes only through `security definer` functions with `search_path = ''`; execute granted to `authenticated` only.
 - Fast mode is `speed = 60`, allowed only when `app_settings.dev_fast_sessions = 'on'`.
-- At the table at the end = an open interval whose `last_heartbeat_at ≥ end − 40 s`. Heartbeats every 15 s. Hidden grace on touch devices 15 s.
+- At the table at the end = an open interval whose `last_heartbeat_at ≥ end − 90 s`. Heartbeats every 15 s. Hidden grace on touch devices 15 s.
 - Copy exactly as in the spec. The timer never changes colour. Tap targets ≥ 44 px.
 - Commands run from `C:\Users\cyril varghese\code\focus app\.claude\worktrees\m2-home-start-pod`. Don't push. Commit messages end with `Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>`.
 - Migrations are pasted into the Supabase SQL editor by Cyril; the agent can't apply them.

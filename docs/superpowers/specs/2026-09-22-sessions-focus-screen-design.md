@@ -13,7 +13,7 @@ The organizer taps **Start focusing**, and the pod's link turns into the focus s
 | Order | Piece 3 before piece 2, because the organizer can start alone |
 | Timer | Data, not a process: every client derives phase and countdown from the server's `started_at` and the preset (`phaseAt`), corrected by a server-time offset |
 | Time tracking | Server-recorded through `heartbeat`, every 15 s while on the focus screen (PRD §9) |
-| At the table at the end | Checked in within the 40 s before the scheduled end and hasn't tapped Leave since |
+| At the table at the end | Checked in within the 90 s before the scheduled end and hasn't tapped Leave since |
 | Fast mode | `?speed=60` on the pod link when starting. Allowed only when `app_settings.dev_fast_sessions = 'on'`; refused otherwise |
 | End screen | Minimal until piece 4: caption + **Done** |
 | Realtime | Not in this piece. With one member nothing needs pushing; piece 2 adds it with joining |
@@ -37,11 +37,11 @@ A session's scheduled end is `started_at + (focus_min·rounds + break_min·(roun
 | Function | Does | Errors |
 |---|---|---|
 | `start_session(p_pod_id, p_speed default 1) → sessions` | Host only. Locks the pod, closes any open session whose time is already up, refuses if one is still running, copies the pod's preset, stamps `now()`, adds every pod member to `session_members` with their focus text | `not_signed_in`, `not_host`, `invalid_speed`, `fast_sessions_off`, `session_running` |
-| `heartbeat(p_session_id) → timestamptz` | Returns server `now()`. If the session is open and not past its end: extends your open interval when the last check-in was < 40 s ago, otherwise closes it at its last check-in and opens a new one | `not_signed_in`, `not_in_session` |
+| `heartbeat(p_session_id) → timestamptz` | Returns server `now()`. If the session is open and not past its end: extends your open interval when the last check-in was < 90 s ago, otherwise closes it at its last check-in and opens a new one | `not_signed_in`, `not_in_session` |
 | `leave_session(p_session_id)` | Closes your open interval at `now()` | `not_signed_in`, `not_in_session` |
 | `finish_session(p_session_id)` | Any member. No-op if already ended. Refuses before the scheduled end. Otherwise sets `present_at_end`, closes open intervals, sets `ended_at` to the scheduled end | `not_signed_in`, `not_in_session`, `not_over` |
 
-`present_at_end` = the member has an interval with `ended_at is null` and `last_heartbeat_at ≥ end − 40 s`. Closing is shared by `finish_session` and `start_session` (for a stale session) through one internal function with no grants.
+`present_at_end` = the member has an interval with `ended_at is null` and `last_heartbeat_at ≥ end − 90 s`. Closing is shared by `finish_session` and `start_session` (for a stale session) through one internal function with no grants.
 
 ## App modules (no React, no `next/*`)
 
