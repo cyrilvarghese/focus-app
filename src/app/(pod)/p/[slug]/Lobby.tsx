@@ -5,13 +5,23 @@ import { PalFace } from "@/components/pals/PalFace";
 import { StudioScene } from "@/components/scene/StudioScene";
 import { getSupabase } from "@/lib/supabase/client";
 import { getPod } from "@/lib/supabase/pods";
+import { getOpenSession, type SessionRow, sessionErrorMessage, startSession } from "@/lib/supabase/sessions";
 import type { Pod, PodMember } from "@/lib/supabase/types";
 import { BackButton, PrimaryButton, TextButton } from "../../_ui/Buttons";
 import { Grow, Screen } from "../../_ui/Screen";
 import { useGuest } from "../../_ui/useGuest";
+import { FocusSession } from "./FocusSession";
 
 const SEATS = 4;
-type Loaded = { status: "loading" } | { status: "found"; pod: Pod; members: PodMember[] } | { status: "private" };
+type Loaded =
+  | { status: "loading" }
+  | { status: "found"; pod: Pod; members: PodMember[]; session: SessionRow | null }
+  | { status: "private" };
+
+/** Dev fast mode: opening the lobby as /p/<slug>?speed=60 starts a session where each minute takes a second. */
+function requestedSpeed(): number {
+  return new URLSearchParams(window.location.search).get("speed") === "60" ? 60 : 1;
+}
 
 function InviteRow({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
@@ -54,13 +64,18 @@ function InviteRow({ slug }: { slug: string }) {
 export function Lobby({ slug }: { slug: string }) {
   const guest = useGuest();
   const [state, setState] = useState<Loaded>({ status: "loading" });
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
 
   useEffect(() => {
     if (guest.status !== "ready") return;
     let live = true;
-    getPod(getSupabase(), slug).then((r) => {
-      if (live) setState(r ? { status: "found", ...r } : { status: "private" });
-    });
+    (async () => {
+      const client = getSupabase();
+      const r = await getPod(client, slug);
+      const session = r ? await getOpenSession(client, r.pod.id) : null;
+      if (live) setState(r ? { status: "found", ...r, session } : { status: "private" });
+    })();
     return () => {
       live = false;
     };
@@ -98,9 +113,27 @@ export function Lobby({ slug }: { slug: string }) {
     );
   }
 
-  const { pod, members } = state;
+  const { pod, members, session } = state;
   const me = guest.userId;
+
+  if (session) return <FocusSession pod={pod} members={members} me={me} session={session} />;
+
   const empty = Math.max(0, SEATS - members.length);
+  const isHost = me === pod.host_id;
+  const hostName = members.find((m) => m.user_id === pod.host_id)?.display_name ?? "the organizer";
+
+  async function start() {
+    if (state.status !== "found") return;
+    setStarting(true);
+    setStartError(null);
+    const r = await startSession(getSupabase(), pod.id, requestedSpeed());
+    if ("session" in r) {
+      setState({ ...state, session: r.session });
+      return;
+    }
+    setStarting(false);
+    setStartError(sessionErrorMessage(r.error));
+  }
 
   return (
     <Screen
@@ -134,8 +167,22 @@ export function Lobby({ slug }: { slug: string }) {
       </ul>
       <Grow />
       <InviteRow slug={pod.slug} />
-      <PrimaryButton disabled>Start focusing</PrimaryButton>
-      <p className="mt-2 text-center text-[13px] text-muted">Sessions arrive soon</p>
+      {isHost ? (
+        <>
+          {startError ? (
+            <p role="alert" className="mb-3 text-center text-[14px] text-danger">
+              {startError}
+            </p>
+          ) : null}
+          <PrimaryButton disabled={starting} onClick={start}>
+            {starting ? "One moment…" : "Start focusing"}
+          </PrimaryButton>
+        </>
+      ) : (
+        <p className="flex min-h-[54px] items-center justify-center text-center text-[15px] text-text-2">
+          Waiting for {hostName} to start
+        </p>
+      )}
     </Screen>
   );
 }
