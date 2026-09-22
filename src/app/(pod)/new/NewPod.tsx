@@ -73,7 +73,7 @@ export function NewPod() {
 
   if (guest.status === "error") {
     return (
-      <Screen nav={<BackButton href="/home" />}>
+      <Screen nav={<BackButton href="/" />}>
         <Grow />
         <p className="display text-center text-[24px]">{guest.message}</p>
         <Grow />
@@ -97,7 +97,7 @@ export function NewPod() {
   }
 
   return (
-    <Screen nav={<BackButton href="/home" />}>
+    <Screen nav={<BackButton href="/" />}>
       <h1 className="display text-[32px] font-medium leading-[1.08] tracking-[-.3px]">Start a pod</h1>
       <Field
         id="pod-name"

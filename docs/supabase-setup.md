@@ -13,7 +13,7 @@ Focuspal uses a hosted Supabase project. Migrations are plain SQL you paste into
 
 Click-through, in a normal window:
 
-- [ ] `/home` → **Start a pod** → **Continue** → choose a pal and a name → **Sit down** → the Lobby shows you as "You · Host", three "Open" seats, and **Copy link** reads "Copied" for 2 s.
+- [ ] `/` (the dashboard, "No sessions yet.") → **+ New session** → **Continue** → choose a pal and a name → **Sit down** → the Lobby shows you as "You · Host", three "Open" seats, and **Copy link** reads "Copied" for 2 s.
 - [ ] Reload the Lobby: same guest, still the host.
 - [ ] Open the lobby link in a private window: "This pod is private for now." with **Back home**.
 - [ ] Clear the pod name on Start a pod: **Continue** is greyed and the hint appears.

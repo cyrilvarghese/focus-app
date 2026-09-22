@@ -68,7 +68,7 @@ export function Lobby({ slug }: { slug: string }) {
 
   if (guest.status === "error") {
     return (
-      <Screen nav={<BackButton href="/home" />}>
+      <Screen nav={<BackButton href="/" />}>
         <Grow />
         <p className="display text-center text-[24px]">{guest.message}</p>
         <Grow />
@@ -79,18 +79,18 @@ export function Lobby({ slug }: { slug: string }) {
 
   if (state.status === "private") {
     return (
-      <Screen nav={<BackButton href="/home" />}>
+      <Screen nav={<BackButton href="/" />}>
         <Grow />
         <p className="display text-center text-[24px]">This pod is private for now.</p>
         <Grow />
-        <TextButton href="/home">Back home</TextButton>
+        <TextButton href="/">Back home</TextButton>
       </Screen>
     );
   }
 
   if (state.status === "loading" || guest.status !== "ready") {
     return (
-      <Screen nav={<BackButton href="/home" />}>
+      <Screen nav={<BackButton href="/" />}>
         <Grow />
         <p className="text-center text-[15px] text-muted">One moment…</p>
         <Grow />
@@ -106,7 +106,7 @@ export function Lobby({ slug }: { slug: string }) {
     <Screen
       nav={
         <>
-          <BackButton href="/home" />
+          <BackButton href="/" />
           <span className="text-sm text-text-2">{pod.name}</span>
           <span className="w-[34px]" aria-hidden="true" />
         </>
