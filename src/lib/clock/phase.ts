@@ -1,6 +1,12 @@
 import { MIN_MS, sessionTotalMs, type Preset } from "./preset";
 
-export type Session = { id: string; startedAtMs: number; preset: Preset };
+export type Session = {
+  id: string;
+  startedAtMs: number;
+  preset: Preset;
+  /** Dev fast mode: session time runs this many times faster than real time. Default 1. */
+  speed?: number;
+};
 export type Phase = "focus" | "break" | "done";
 export type ClockState = {
   phase: Phase;
@@ -13,19 +19,24 @@ export type ClockState = {
 };
 export type FocusWindow = { round: number; startMs: number; endMs: number };
 
+/** Focus rounds in real time (so they line up with recorded focus intervals). */
 export function focusWindows(s: Session): FocusWindow[] {
-  const focusMs = s.preset.focusMin * MIN_MS;
-  const cycleMs = focusMs + s.preset.breakMin * MIN_MS;
+  const k = s.speed ?? 1;
+  const focusMs = (s.preset.focusMin * MIN_MS) / k;
+  const cycleMs = focusMs + (s.preset.breakMin * MIN_MS) / k;
   return Array.from({ length: s.preset.rounds }, (_, i) => {
     const startMs = s.startedAtMs + i * cycleMs;
     return { round: i + 1, startMs, endMs: startMs + focusMs };
   });
 }
 
-/** The timer is data: every client derives the same state from the session and the server's now. */
+/**
+ * The timer is data: every client derives the same state from the session and the server's now.
+ * remainingMs is in session time, so fast mode still counts down from 25:00.
+ */
 export function phaseAt(s: Session, nowMs: number): ClockState {
   const { focusMin, breakMin, rounds } = s.preset;
-  const elapsed = Math.max(0, nowMs - s.startedAtMs);
+  const elapsed = Math.max(0, (nowMs - s.startedAtMs) * (s.speed ?? 1));
   if (elapsed >= sessionTotalMs(s.preset)) {
     return { phase: "done", round: rounds, remainingMs: 0, focusProgress: 1 };
   }
