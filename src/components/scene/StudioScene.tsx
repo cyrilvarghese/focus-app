@@ -44,12 +44,50 @@ function loadStudioPot(): Promise<StudioPotLib> {
   return loading;
 }
 
+/** What the focus screen tells the pot, from potteryView. */
+export type SceneView = {
+  progress: number;
+  running: boolean;
+  pace: number;
+  status: "throwing" | "complete" | "abandoned";
+};
+
+function apply(pot: StudioPotHandle, view: SceneView | undefined) {
+  if (!view) {
+    pot.setRunning(false);
+    return;
+  }
+  pot.setProgress(view.progress);
+  pot.setRunning(view.running);
+  pot.setPace(view.pace);
+  // Both are safe to repeat.
+  if (view.status === "complete") pot.complete();
+  if (view.status === "abandoned") pot.abandon();
+}
+
 /**
  * Ashna's pottery studio (public/studio-pot.js), drawn the way public/studio.html draws it.
- * Resting, for the Lobby: the pot at its first stage and the wheel still. The focus screen (piece 3) adds a running mode.
+ * Without a view it rests, for the Lobby: the pot at its first stage and the wheel still.
+ * onStage fires as the pot reaches each of its eight stages (0 at the start).
  */
-export function StudioScene({ label }: { label: string }) {
+export function StudioScene({ label, view, onStage }: { label: string; view?: SceneView; onStage?: (stage: number) => void }) {
   const svgRef = useRef<SVGSVGElement>(null);
+  const potRef = useRef<StudioPotHandle | null>(null);
+  const viewRef = useRef(view);
+  const onStageRef = useRef(onStage);
+
+  useEffect(() => {
+    viewRef.current = view;
+    onStageRef.current = onStage;
+  });
+
+  const progress = view?.progress;
+  const running = view?.running;
+  const pace = view?.pace;
+  const status = view?.status;
+  useEffect(() => {
+    if (potRef.current) apply(potRef.current, viewRef.current);
+  }, [progress, running, pace, status]);
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -64,7 +102,7 @@ export function StudioScene({ label }: { label: string }) {
         const panFront = lib.drawPan(svg, 171, 300);
         const mount = document.createElementNS(NS, "g");
         svg.appendChild(mount);
-        pot = lib.create(mount, { x: 171, y: 294, scale: 1.14 });
+        pot = lib.create(mount, { x: 171, y: 294, scale: 1.14, onStage: (i) => onStageRef.current?.(i) });
         panFront();
         const vignette = document.createElementNS(NS, "rect");
         vignette.setAttribute("width", "342");
@@ -73,7 +111,8 @@ export function StudioScene({ label }: { label: string }) {
         vignette.setAttribute("pointer-events", "none");
         svg.appendChild(vignette);
         pot.start();
-        pot.setRunning(false);
+        potRef.current = pot;
+        apply(pot, viewRef.current);
       })
       .catch(() => {
         // The card keeps its plain background if the script can't load.
@@ -82,6 +121,7 @@ export function StudioScene({ label }: { label: string }) {
     return () => {
       cancelled = true;
       pot?.destroy();
+      potRef.current = null;
       // Remove everything drawn into the svg, keeping the <defs> React rendered.
       Array.from(svg.children).forEach((c) => {
         if (c.tagName.toLowerCase() !== "defs") c.remove();
