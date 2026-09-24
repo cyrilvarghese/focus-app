@@ -107,7 +107,7 @@ Known limitation: a phone user's screen stays on during rounds. Wake Lock requir
 
 - **Guest-first:** opening the app creates an anonymous Supabase user silently. All data attaches to that user ID.
 - **Upgrade without migration:** "Save my progress" on My shelf (and, later, any payment) links an email to the *same* user ID through a magic link. No data moves.
-- **Time is recorded by the server, not reported by the client.** While a member is focusing, the client calls a `heartbeat` RPC every 15 s. The server extends that member's open focus interval to the server's `now()` if the previous heartbeat is less than 40 s old, and otherwise opens a new interval. A crashed client simply stops accruing.
+- **Time is recorded by the server, not reported by the client.** While a member is focusing, the client calls a `heartbeat` RPC every 15 s. The server extends that member's open focus interval to the server's `now()` if the previous heartbeat is less than 90 s old (browsers throttle background-tab timers to about once a minute), and otherwise opens a new interval. A crashed client simply stops accruing.
 - My shelf and all totals are queries over focus intervals and `session_members.present_at_end`.
 
 ## 10. Screens
@@ -133,7 +133,7 @@ focus_intervals  id · session_id · pod_id · user_id · round · started_at ·
 ```
 
 - **The timer is data.** The round and the remaining time are computed from `sessions.started_at` plus the preset. Clients correct for clock skew with a server-time offset measured at connect.
-- **No pot table.** The pot is `pieceFor(sessions.id)`. A member's shelf is their sessions where `present_at_end` is true. `present_at_end` is set by `end_session` (or the scheduled close) from members whose last heartbeat is less than 40 s old.
+- **No pot table.** The pot is `pieceFor(sessions.id)`. A member's shelf is their sessions where `present_at_end` is true. `present_at_end` is set by `end_session` (or the scheduled close) from members whose last heartbeat is less than 90 s old.
 - **Row Level Security:** members can read their own pods, those pods' sessions and their members. Users can write only their own profile and membership. `focus_intervals` is written only through the `heartbeat` RPC, which runs as security definer. `sessions` rows are created through a `start_session` RPC (host only) and ended through an `end_session` RPC.
 - **Realtime:** one channel per pod. Presence carries `{user_id, status}` so the "dozing" pal updates instantly. Postgres changes on `sessions` drive the lobby → focus transitions.
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_PRESET, MIN_MS, type Session } from "@/lib/clock";
-import { pieceFor } from "./piece";
+import { recipeFor } from "./recipe";
 import { potteryView } from "./view";
 
 const session: Session = { id: "session-1", startedAtMs: 0, preset: DEFAULT_PRESET };
@@ -9,7 +9,7 @@ const solo = { presentCount: 1, memberCount: 1 };
 describe("potteryView", () => {
   it("throws toward the session's piece during focus", () => {
     const v = potteryView(session, 10 * MIN_MS, solo);
-    expect(v).toEqual({ ...pieceFor("session-1"), progress: 0.2, running: true, pace: 1, status: "throwing" });
+    expect(v).toEqual({ recipe: recipeFor("session-1"), progress: 0.2, running: true, pace: 1, status: "throwing" });
   });
 
   it("stops the wheel during a break", () => {

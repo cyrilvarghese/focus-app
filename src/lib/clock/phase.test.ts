@@ -69,3 +69,23 @@ describe("phaseAt", () => {
     expect(at(37)).toEqual({ phase: "focus", round: 2, remainingMs: 18 * MIN_MS, focusProgress: 32 / 50 });
   });
 });
+
+describe("fast mode (speed)", () => {
+  const fast: Session = { id: "f", startedAtMs: S, preset: DEFAULT_PRESET, speed: 60 };
+
+  it("runs a minute of session time per real second", () => {
+    expect(phaseAt(fast, S + 25_000)).toEqual({ phase: "break", round: 1, remainingMs: 5 * MIN_MS, focusProgress: 0.5 });
+    expect(phaseAt(fast, S + 55_000).phase).toBe("done");
+  });
+
+  it("puts focus windows in real time", () => {
+    expect(focusWindows(fast)).toEqual([
+      { round: 1, startMs: S, endMs: S + 25_000 },
+      { round: 2, startMs: S + 30_000, endMs: S + 55_000 },
+    ]);
+  });
+
+  it("treats a missing speed as 1", () => {
+    expect(phaseAt({ ...fast, speed: undefined }, S + 25_000).phase).toBe("focus");
+  });
+});
