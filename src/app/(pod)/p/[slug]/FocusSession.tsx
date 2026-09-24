@@ -3,11 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PalFace } from "@/components/pals/PalFace";
-import { type SceneView, StudioScene } from "@/components/scene/StudioScene";
+import { PotteryScene } from "@/components/studio/PotteryScene";
 import { clockOffset, formatCountdown, phaseAt, sessionTotalMs } from "@/lib/clock";
 import { isFocusing } from "@/lib/presence";
 import { potteryView } from "@/lib/pottery";
-import { caption, type Outcome, peekTitle, STAGE_NAMES, subtitle } from "@/lib/session/copy";
+import { caption, type Outcome, peekTitle, subtitle } from "@/lib/session/copy";
 import { getSupabase } from "@/lib/supabase/client";
 import { finishSession, getMyResult, heartbeat, leaveSession, type SessionRow, toClockSession } from "@/lib/supabase/sessions";
 import { getSessionMinutes } from "@/lib/supabase/shelf";
@@ -108,7 +108,7 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
   const now = useNow();
   const presence = usePresenceInput();
   const [offset, setOffset] = useState(0);
-  const [stage, setStage] = useState(0);
+  const [stageLine, setStageLine] = useState("Centring the clay.");
   const [outcome, setOutcome] = useState<Outcome>("pending");
   const [minutes, setMinutes] = useState<Record<string, number>>({});
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -178,7 +178,7 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
     return () => document.removeEventListener("keydown", onKey);
   }, [sheetOpen]);
 
-  const onStage = useCallback((i: number) => setStage(i), []);
+  const onStageLabel = useCallback((line: string) => setStageLine(line), []);
 
   if (now === 0) {
     return (
@@ -196,13 +196,7 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
 
   // Until friends can join (piece 2), only your own presence is known here.
   const pv = potteryView(clockSession, t, { presentCount: focusing ? 1 : 0, memberCount: 1 });
-  const view: SceneView = {
-    progress: pv.progress,
-    running: pv.running && !ended,
-    pace: pv.pace,
-    status: outcome === "kept" ? "complete" : outcome === "lost" ? "abandoned" : "throwing",
-  };
-  const cap = caption({ phase: clock.phase, stage: STAGE_NAMES[stage], meAway, dozing: [], outcome });
+  const cap = caption({ phase: clock.phase, stage: stageLine.replace(/\.$/, ""), meAway, dozing: [], outcome });
   const peek = peekTitle({ phase: clock.phase, focusing: focusing ? 1 : 0, dozing: [], meAway, outcome });
 
   async function copyInvite() {
@@ -250,7 +244,14 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
         <p className="display mt-2 text-[15.5px] text-sage">{subtitle(clock, session.rounds)}</p>
       </div>
 
-      <StudioScene label="A terracotta pot being thrown on a wheel in a quiet pottery studio" view={view} onStage={onStage} />
+      <PotteryScene
+        recipe={pv.recipe}
+        progress={pv.progress}
+        running={pv.running && !ended}
+        pace={pv.pace}
+        label="A pot being thrown, glazed and fired in a quiet pottery studio"
+        onStageLabel={onStageLabel}
+      />
 
       <p className="mx-1 mt-1 min-h-5 text-center text-[13.5px] text-text-2" aria-live="polite">
         <b className="font-semibold text-text">{cap.lead}</b> {cap.rest}

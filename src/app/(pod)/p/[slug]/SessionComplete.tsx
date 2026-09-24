@@ -2,9 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { PalFace } from "@/components/pals/PalFace";
-import { FinishedPot } from "@/components/pottery/FinishedPot";
+import { PotStill } from "@/components/studio/PotStill";
+import { pieceLabel } from "@/components/studio/scene";
 import { formatTogether } from "@/lib/clock";
-import { pieceById, pieceFor } from "@/lib/pottery";
+import { recipeFor } from "@/lib/pottery";
 import type { PodMember } from "@/lib/supabase/types";
 import { PrimaryButton } from "../../_ui/Buttons";
 import { Grow, Screen } from "../../_ui/Screen";
@@ -25,8 +26,8 @@ export function SessionComplete({
   kept: boolean;
 }) {
   const router = useRouter();
-  const piece = pieceFor(sessionId);
-  const name = pieceById(piece.pieceId).name;
+  const recipe = recipeFor(sessionId);
+  const name = pieceLabel(recipe);
   const mine = minutes[me] ?? 0;
 
   return (
@@ -35,7 +36,7 @@ export function SessionComplete({
       <div className="relative grid h-[250px] place-items-end justify-center">
         <div aria-hidden="true" className="absolute bottom-[22px] h-[30px] w-[190px] rounded-[50%] bg-sand" />
         <div className="relative mb-[34px]">
-          <FinishedPot pieceId={piece.pieceId} glaze={piece.glaze} width={168} height={152} glint={kept} />
+          <PotStill recipe={recipe} height={170} label={`A ${name}`} />
         </div>
       </div>
 

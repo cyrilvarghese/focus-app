@@ -99,7 +99,7 @@ export function SoloSession() {
   const t = session.startedAtMs + (now - session.startedAtMs) * speed;
   const clock = phaseAt(session, t);
   const view = potteryView(session, t, { presentCount: left ? 0 : 1, memberCount: 1, left });
-  const name = view.pieceName;
+  const name = `${view.recipe.glaze} ${view.recipe.shape}`;
   const again = (
     <button type="button" className="mt-6 min-h-11 w-full rounded-full border-[1.5px] border-ink px-6 font-semibold" onClick={() => setRun(null)}>
       Start another

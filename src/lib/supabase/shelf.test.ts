@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_PRESET, MIN_MS, type Session } from "@/lib/clock";
-import { pieceFor } from "@/lib/pottery";
+import { recipeFor } from "@/lib/pottery";
 import { getMyShelf, getSessionMinutes } from "./shelf";
 
 type Result = { data: unknown; error: { message: string } | null };
@@ -57,7 +57,7 @@ describe("getMyShelf", () => {
 
     const shelf = await getMyShelf(f.client, "u1");
     expect(shelf.map((i) => i.sessionId)).toEqual(["s-new", "s-old"]);
-    expect(shelf[0]).toMatchObject({ podName: "The afternoon pod", minutes: 25, ...pieceFor("s-new") });
+    expect(shelf[0]).toMatchObject({ podName: "The afternoon pod", minutes: 25, recipe: recipeFor("s-new") });
     expect(shelf[1]).toMatchObject({ podName: "Morning pod", minutes: 10 });
     expect(f.calls[0].filters).toEqual([
       ["eq", "user_id", "u1"],

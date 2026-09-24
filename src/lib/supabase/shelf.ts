@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Session } from "../clock";
-import { type FocusInterval, palMinutes, pieceFor } from "../pottery";
-import type { Glaze, PieceId } from "../pottery/piece";
+import { type FocusInterval, palMinutes, type Recipe, recipeFor } from "../pottery";
 import { toClockSession, type SessionRow } from "./sessions";
 
 /** One finished pot on your shelf. */
@@ -10,8 +9,8 @@ export type ShelfItem = {
   podName: string;
   /** When the session ended, in ms. */
   endedAtMs: number;
-  pieceId: PieceId;
-  glaze: Glaze;
+  /** The pot that session made: the same one the wheel threw. */
+  recipe: Recipe;
   /** Your own focused minutes in that session. */
   minutes: number;
 };
@@ -71,7 +70,7 @@ export async function getMyShelf(client: SupabaseClient, userId: string): Promis
       sessionId: s.id,
       podName: s.pods?.name ?? "Your pod",
       endedAtMs: Date.parse(s.ended_at ?? ""),
-      ...pieceFor(s.id),
+      recipe: recipeFor(s.id),
       minutes: palMinutes(intervals, clockSession, Date.parse(s.ended_at ?? "")),
     };
   });

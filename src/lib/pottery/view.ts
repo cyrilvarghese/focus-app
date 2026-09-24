@@ -1,14 +1,12 @@
 import { phaseAt, type Session } from "@/lib/clock";
-import { type Glaze, pieceById, pieceFor, type PieceId } from "./piece";
+import { type Recipe, recipeFor } from "./recipe";
 
 export type PotStatus = "idle" | "throwing" | "complete" | "abandoned";
 
 /** Everything the pottery wheel component (built by Ashna) receives. */
 export type PotteryView = {
-  /** What the throw is heading toward: the animation's id and its name. */
-  pieceId: PieceId;
-  pieceName: string;
-  glaze: Glaze;
+  /** This session's pot: shape, glaze and its small variations. */
+  recipe: Recipe;
   /** 0..1, the clock's focusProgress. Holds steady during breaks. */
   progress: number;
   /** True only during focus; the wheel spins down on breaks. */
@@ -29,10 +27,8 @@ export function potteryView(
   if (left) status = "abandoned";
   else if (clock.phase === "done") status = presentCount >= 1 ? "complete" : "abandoned";
 
-  const piece = pieceFor(session.id);
   return {
-    ...piece,
-    pieceName: pieceById(piece.pieceId).name,
+    recipe: recipeFor(session.id),
     progress: clock.focusProgress,
     running: !left && clock.phase === "focus",
     pace: Math.min(1, Math.max(0, presentCount / Math.max(1, memberCount))),

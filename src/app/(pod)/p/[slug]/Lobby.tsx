@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PalFace } from "@/components/pals/PalFace";
-import { StudioScene } from "@/components/scene/StudioScene";
+import { PotteryScene } from "@/components/studio/PotteryScene";
+import { recipeFor } from "@/lib/pottery";
 import { getSupabase } from "@/lib/supabase/client";
 import { getPodPreview, type PodPreview } from "@/lib/supabase/join";
 import { watchPod } from "@/lib/supabase/live";
@@ -172,7 +173,7 @@ export function Lobby({ slug }: { slug: string }) {
       }
     >
       <h1 className="display text-center text-[32px] font-medium leading-[1.08] tracking-[-.3px]">Your table is set.</h1>
-      <StudioScene label="The pottery studio, with the wheel resting and clay waiting" />
+      <PotteryScene recipe={recipeFor(pod.id)} progress={0} running={false} label="The pottery studio, with a ball of clay waiting on the wheel" />
       <ul className="mt-1.5 flex justify-center gap-[18px]" aria-label="Who's here">
         {members.map((m) => {
           const tags = [m.user_id === me ? "You" : null, m.user_id === pod.host_id ? "Host" : null].filter(Boolean);

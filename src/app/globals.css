@@ -131,14 +131,3 @@ body {
   --font-display: var(--font-fraunces);
   --font-ui: var(--font-inter);
 }
-
-/* ───────── Ashna's studio (public/studio-pot.js): ambient motion, slow and small, as in public/studio.html ───────── */
-.studio-card .light { animation: studio-light 16s ease-in-out infinite; }
-.studio-card .leaf { animation: studio-sway 7s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
-.studio-card .mote { opacity: 0; animation: studio-mote 13s linear infinite; }
-@keyframes studio-light { 0%, 100% { opacity: .65; } 50% { opacity: .95; } }
-@keyframes studio-sway { 0%, 100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.5deg); } }
-@keyframes studio-mote { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: .8; } 85% { opacity: .5; } 100% { opacity: 0; transform: translate(18px, -34px); } }
-@media (prefers-reduced-motion: reduce) {
-  .studio-card .light, .studio-card .leaf, .studio-card .mote { animation: none; }
-}
