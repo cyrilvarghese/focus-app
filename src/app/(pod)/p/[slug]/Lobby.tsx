@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PalFace } from "@/components/pals/PalFace";
 import { PotteryScene } from "@/components/studio/PotteryScene";
 import { recipeFor } from "@/lib/pottery";
 import { getSupabase } from "@/lib/supabase/client";
 import { getPodPreview, type PodPreview } from "@/lib/supabase/join";
 import { watchPod } from "@/lib/supabase/live";
+import { joinPresence, type PresenceHandle, type PresenceStates } from "@/lib/supabase/presence";
+import type { PresenceStatus } from "@/lib/session/who";
 import { getPod } from "@/lib/supabase/pods";
 import { getOpenSession, type SessionRow, sessionErrorMessage, startSession } from "@/lib/supabase/sessions";
 import type { Pod, PodMember } from "@/lib/supabase/types";
@@ -66,6 +68,29 @@ function InviteRow({ slug }: { slug: string }) {
   );
 }
 
+/** Joins the pod's presence channel while you're in the lobby or a session, so everyone sees who's here. */
+function usePodPresence(podId: string | null, me: string | null) {
+  const [states, setStates] = useState<PresenceStates>({});
+  const [synced, setSynced] = useState(false);
+  const handle = useRef<PresenceHandle | null>(null);
+
+  useEffect(() => {
+    if (!podId || !me) return;
+    const h = joinPresence(getSupabase(), podId, me, "lobby", (s) => {
+      setStates(s);
+      setSynced(true);
+    });
+    handle.current = h;
+    return () => {
+      h.leave();
+      handle.current = null;
+    };
+  }, [podId, me]);
+
+  const setMyStatus = useCallback((s: PresenceStatus) => handle.current?.update(s), []);
+  return { states, synced, setMyStatus };
+}
+
 export function Lobby({ slug }: { slug: string }) {
   const guest = useGuest();
   const [state, setState] = useState<Loaded>({ status: "loading" });
@@ -103,6 +128,8 @@ export function Lobby({ slug }: { slug: string }) {
     if (!podId) return;
     return watchPod(getSupabase(), podId, () => setReloads((n) => n + 1));
   }, [podId]);
+
+  const presence = usePodPresence(podId, guest.status === "ready" ? guest.userId : null);
 
   if (guest.status === "error") {
     return (
@@ -143,7 +170,18 @@ export function Lobby({ slug }: { slug: string }) {
   const { pod, members, session } = state;
   const me = guest.userId;
 
-  if (session) return <FocusSession pod={pod} members={members} me={me} session={session} />;
+  if (session) {
+    return (
+      <FocusSession
+        pod={pod}
+        members={members}
+        me={me}
+        session={session}
+        presence={{ states: presence.states, synced: presence.synced }}
+        setMyStatus={presence.setMyStatus}
+      />
+    );
+  }
 
   const empty = Math.max(0, SEATS - members.length);
   const isHost = me === pod.host_id;
@@ -179,7 +217,7 @@ export function Lobby({ slug }: { slug: string }) {
           const tags = [m.user_id === me ? "You" : null, m.user_id === pod.host_id ? "Host" : null].filter(Boolean);
           return (
             <li key={m.user_id} className="grid justify-items-center gap-1.5 text-[12.5px] text-text-2">
-              <PalFace pal={m.animal} size={44} />
+              <PalFace pal={m.animal} size={44} dimmed={m.user_id !== me && presence.synced && !presence.states[m.user_id]} />
               <span>{m.user_id === me ? "You" : m.display_name}</span>
               {tags.length ? <span className="-mt-1 text-[11.5px] text-muted">{tags.join(" · ")}</span> : null}
             </li>

@@ -8,6 +8,8 @@ import { clockOffset, formatCountdown, phaseAt, sessionTotalMs } from "@/lib/clo
 import { isFocusing } from "@/lib/presence";
 import { potteryView } from "@/lib/pottery";
 import { caption, type Outcome, peekTitle, subtitle } from "@/lib/session/copy";
+import { paceOf, type PresenceStatus, whoIsHere } from "@/lib/session/who";
+import type { PresenceStates } from "@/lib/supabase/presence";
 import { getSupabase } from "@/lib/supabase/client";
 import { finishSession, getMyResult, heartbeat, leaveSession, type SessionRow, toClockSession } from "@/lib/supabase/sessions";
 import { getSessionMinutes } from "@/lib/supabase/shelf";
@@ -103,7 +105,23 @@ const chevron = (
   </svg>
 );
 
-export function FocusSession({ pod, members, me, session }: { pod: Pod; members: PodMember[]; me: string; session: SessionRow }) {
+export function FocusSession({
+  pod,
+  members,
+  me,
+  session,
+  presence: seen,
+  setMyStatus,
+}: {
+  pod: Pod;
+  members: PodMember[];
+  me: string;
+  session: SessionRow;
+  /** Everyone's reported state, from the pod's presence channel. */
+  presence: { states: PresenceStates; synced: boolean };
+  /** Tells the pod what this screen's person is doing. */
+  setMyStatus: (s: PresenceStatus) => void;
+}) {
   const router = useRouter();
   const now = useNow();
   const presence = usePresenceInput();
@@ -171,6 +189,12 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
 
   useWakeLock(!ended);
 
+  // Tell the pod whether you're focusing, on the break, or stepped away.
+  const myStatus: PresenceStatus = !focusing ? "away" : clock.phase === "break" ? "break" : "focusing";
+  useEffect(() => {
+    setMyStatus(myStatus);
+  }, [myStatus, setMyStatus]);
+
   useEffect(() => {
     if (!sheetOpen) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setSheetOpen(false);
@@ -194,10 +218,20 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
     return <SessionComplete sessionId={session.id} members={members} me={me} minutes={minutes} kept={outcome === "kept"} />;
   }
 
-  // Until friends can join (piece 2), only your own presence is known here.
-  const pv = potteryView(clockSession, t, { presentCount: focusing ? 1 : 0, memberCount: 1 });
-  const cap = caption({ phase: clock.phase, stage: stageLine.replace(/\.$/, ""), meAway, dozing: [], outcome });
-  const peek = peekTitle({ phase: clock.phase, focusing: focusing ? 1 : 0, dozing: [], meAway, outcome });
+  const who = whoIsHere(
+    members.map((m) => m.user_id),
+    seen.states,
+    me,
+    focusing,
+    seen.synced,
+  );
+  const nameOf = (id: string) => members.find((m) => m.user_id === id)?.display_name ?? "Someone";
+  const dozingNames = who.dozing.map(nameOf);
+  const isDozing = (id: string) => (id === me ? !focusing : who.dozing.includes(id));
+  const pv = potteryView(clockSession, t, { presentCount: who.focusing.length, memberCount: members.length });
+  const pace = paceOf(who, members.length);
+  const cap = caption({ phase: clock.phase, stage: stageLine.replace(/\.$/, ""), meAway, dozing: dozingNames, outcome });
+  const peek = peekTitle({ phase: clock.phase, focusing: who.focusing.length, dozing: dozingNames, meAway, outcome });
 
   async function copyInvite() {
     try {
@@ -216,9 +250,8 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
   }
 
   const status = (m: PodMember) => {
-    if (m.user_id !== me) return "At the table";
-    if (clock.phase === "break") return "On break";
-    return focusing ? "Focusing" : "Stepped away";
+    if (isDozing(m.user_id)) return m.user_id === me ? "Stepped away" : "Dozing";
+    return clock.phase === "break" ? "On break" : "Focusing";
   };
 
   return (
@@ -248,7 +281,7 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
         recipe={pv.recipe}
         progress={pv.progress}
         running={pv.running && !ended}
-        pace={pv.pace}
+        pace={pace}
         label="A pot being thrown, glazed and fired in a quiet pottery studio"
         onStageLabel={onStageLabel}
       />
@@ -268,7 +301,7 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
         <span className="flex">
           {members.map((m, i) => (
             <span key={m.user_id} className={`rounded-full shadow-[0_0_0_2px_var(--card)] ${i ? "-ml-2" : ""}`}>
-              <PalFace pal={m.animal} size={32} dimmed={m.user_id === me && !focusing} />
+              <PalFace pal={m.animal} size={32} dimmed={isDozing(m.user_id)} />
             </span>
           ))}
         </span>
@@ -292,7 +325,7 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
             <ul className="mt-4 grid gap-4">
               {members.map((m) => (
                 <li key={m.user_id} className="flex items-center gap-3">
-                  <PalFace pal={m.animal} size={44} dimmed={m.user_id === me && !focusing} />
+                  <PalFace pal={m.animal} size={44} dimmed={isDozing(m.user_id)} />
                   <span className="min-w-0 flex-1">
                     <span className="block text-[15px] font-semibold">
                       {m.display_name}
@@ -305,7 +338,7 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
                   <span className="flex items-center gap-1.5 text-[13px] text-text-2">
                     <span
                       aria-hidden="true"
-                      className={`h-2 w-2 rounded-full ${m.user_id === me && !focusing ? "bg-[var(--sleep)]" : "bg-[var(--live)]"}`}
+                      className={`h-2 w-2 rounded-full ${isDozing(m.user_id) ? "bg-[var(--sleep)]" : "bg-[var(--live)]"}`}
                     />
                     {status(m)}
                   </span>
