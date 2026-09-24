@@ -4,15 +4,24 @@
 alter table public.pod_members add column if not exists tags text[] not null default '{}';
 
 -- Up to three, from the list in src/lib/tags.ts, with no repeats.
+-- A check constraint can't contain a subquery, so the rule lives in one immutable function
+-- that both the constraint and create_pod use.
+create or replace function public.tags_ok(p_tags text[])
+returns boolean
+language sql
+immutable
+set search_path = ''
+as $$
+  select coalesce(array_length(p_tags, 1), 0) <= 3
+     and coalesce(p_tags, '{}') <@ array['Deep work', 'Writing', 'Code', 'Design', 'Study', 'Admin', 'Reading', 'Planning']
+     and coalesce(array_length(p_tags, 1), 0) = (select count(distinct t) from unnest(coalesce(p_tags, '{}')) t);
+$$;
+
+revoke execute on function public.tags_ok(text[]) from public, anon;
+grant  execute on function public.tags_ok(text[]) to authenticated;
+
 alter table public.pod_members drop constraint if exists pod_members_tags_valid;
-alter table public.pod_members add constraint pod_members_tags_valid check (
-  array_length(tags, 1) is null
-  or (
-    array_length(tags, 1) <= 3
-    and tags <@ array['Deep work', 'Writing', 'Code', 'Design', 'Study', 'Admin', 'Reading', 'Planning']
-    and array_length(tags, 1) = (select count(distinct t) from unnest(tags) t)
-  )
-);
+alter table public.pod_members add constraint pod_members_tags_valid check (public.tags_ok(tags));
 
 -- create_pod gains p_tags. Dropping first keeps one version of the function, so calls are never ambiguous.
 drop function if exists public.create_pod(text, int, int, int, text, text, text);
@@ -55,11 +64,7 @@ begin
   if p_animal is null or p_animal not in ('bunny', 'cat', 'dog', 'koala') then raise exception 'invalid_animal'; end if;
   if char_length(v_display) not between 1 and 24 then raise exception 'invalid_display_name'; end if;
   if char_length(v_focus) > 80 then raise exception 'invalid_focus_text'; end if;
-  if array_length(v_tags, 1) > 3
-     or not (v_tags <@ array['Deep work', 'Writing', 'Code', 'Design', 'Study', 'Admin', 'Reading', 'Planning'])
-     or array_length(v_tags, 1) is distinct from (select nullif(count(distinct t), 0)::int from unnest(v_tags) t) then
-    raise exception 'invalid_tags';
-  end if;
+  if not public.tags_ok(v_tags) then raise exception 'invalid_tags'; end if;
 
   insert into public.profiles (id, name, animal)
   values (v_uid, v_display, p_animal)
