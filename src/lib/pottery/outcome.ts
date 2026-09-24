@@ -31,7 +31,8 @@ export function palMinutes(intervals: FocusInterval[], session: Session, nowMs: 
       for (const w of windows) totalMs += Math.max(0, Math.min(e, w.endMs) - Math.max(s, w.startMs));
     }
   }
-  return Math.floor(totalMs / MIN_MS);
+  // Session time, so a fast-mode session still reports the minutes it represents.
+  return Math.floor((totalMs * (session.speed ?? 1)) / MIN_MS);
 }
 
 /** The pot survives if anyone is still at the table at the end, and it goes to them. */

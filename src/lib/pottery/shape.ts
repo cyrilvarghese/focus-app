@@ -1,4 +1,4 @@
-import type { Glaze, PieceKind } from "./piece";
+import { type Glaze, type PieceId, pieceById } from "./piece";
 
 /**
  * The finished piece, drawn front-on with a dipped glaze.
@@ -15,36 +15,6 @@ export const GLAZE_COLORS: Record<Glaze, string> = {
   cream: "#f1ebe0",
   terracotta: "#dcbcab",
   ink: "#8f9599",
-};
-
-/** Side profiles as (height 0..1, radius 0..1) from the foot up. */
-const PROFILES: Record<PieceKind, [number, number][]> = {
-  vase: [
-    [0, 0.42],
-    [0.18, 0.78],
-    [0.42, 0.95],
-    [0.62, 0.7],
-    [0.8, 0.36],
-    [0.92, 0.34],
-    [1, 0.46],
-  ],
-  bowl: [
-    [0, 0.38],
-    [0.2, 0.66],
-    [0.55, 0.9],
-    [1, 1],
-  ],
-  mug: [
-    [0, 0.64],
-    [0.04, 0.68],
-    [0.5, 0.7],
-    [1, 0.68],
-  ],
-  cup: [
-    [0, 0.5],
-    [0.3, 0.62],
-    [1, 0.74],
-  ],
 };
 
 /** Catmull-Rom through the profile points, so the wall curves rather than kinks. */
@@ -68,10 +38,10 @@ function curve(pts: [number, number][], n: number): [number, number][] {
   return out;
 }
 
-export function potSvg(kind: PieceKind, glaze: Glaze, w: number, h: number, opts: { glint?: boolean; idPrefix?: string } = {}): string {
+export function potSvg(pieceId: PieceId, glaze: Glaze, w: number, h: number, opts: { glint?: boolean; idPrefix?: string } = {}): string {
   // Derived from the inputs, not a counter, so the server and the browser agree (no hydration mismatch).
   // Two identical pots share an id, which is harmless: their clip path and gradient are identical too.
-  const id = `${opts.idPrefix ?? "fp"}-${kind}-${glaze}-${w}x${h}${opts.glint ? "-g" : ""}`;
+  const id = `${opts.idPrefix ?? "fp"}-${pieceId}-${glaze}-${w}x${h}${opts.glint ? "-g" : ""}`;
   const R = w * 0.42;
   const cx = w / 2;
   const base = h - w * 0.08;
@@ -79,7 +49,7 @@ export function potSvg(kind: PieceKind, glaze: Glaze, w: number, h: number, opts
   const wall = base - top;
   const g = GLAZE_COLORS[glaze];
   const sw = Math.max(1.2, w / 95);
-  const pts = curve(PROFILES[kind], 8);
+  const pts = curve(pieceById(pieceId).profile, 8);
   const X = (r: number, s: 1 | -1) => (cx + s * r * R).toFixed(1);
   const Y = (t: number) => (base - t * wall).toFixed(1);
 
@@ -99,15 +69,6 @@ export function potSvg(kind: PieceKind, glaze: Glaze, w: number, h: number, opts
     `<stop offset=".56" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#6b5a45" stop-opacity=".26"/>` +
     `</linearGradient></defs>`;
 
-  if (kind === "mug") {
-    const hd =
-      `M${X(0.68, 1)} ${Y(0.78)} q${(R * 0.55).toFixed(1)} 0 ${(R * 0.55).toFixed(1)} ${(wall * 0.26).toFixed(1)} ` +
-      `q0 ${(wall * 0.26).toFixed(1)} -${(R * 0.55).toFixed(1)} ${(wall * 0.26).toFixed(1)}`;
-    s +=
-      `<path d="${hd}" fill="none" stroke="${INK}" stroke-width="${(sw * 3.2).toFixed(1)}" stroke-linecap="round"/>` +
-      `<path d="${hd}" fill="none" stroke="${g}" stroke-width="${(sw * 1.6).toFixed(1)}" stroke-linecap="round"/>`;
-  }
-
   s +=
     `<g clip-path="url(#${id})"><rect width="${w}" height="${h}" fill="${CLAY}"/>` +
     `<path d="M0 ${dip.toFixed(1)} Q${w * 0.3} ${(dip + wall * 0.06).toFixed(1)} ${w * 0.55} ${(dip - wall * 0.02).toFixed(1)} T${w} ${(dip + wall * 0.03).toFixed(1)} V0 H0Z" fill="${g}"/>` +
@@ -118,10 +79,7 @@ export function potSvg(kind: PieceKind, glaze: Glaze, w: number, h: number, opts
   return `${s}</svg>`;
 }
 
-/** Roughly how tall and wide each piece sits on the shelf. */
-export const SHELF_SIZES: Record<PieceKind, [number, number]> = {
-  vase: [56, 82],
-  bowl: [70, 50],
-  mug: [52, 60],
-  cup: [44, 56],
-};
+/** How big a piece sits on the shelf, keeping the animation's proportions. */
+export function shelfSize(pieceId: PieceId, height = 76): [number, number] {
+  return [Math.round(height * pieceById(pieceId).ratio), height];
+}

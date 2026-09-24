@@ -1,5 +1,5 @@
 import { FinishedPot } from "@/components/pottery/FinishedPot";
-import { SHELF_SIZES } from "@/lib/pottery/shape";
+import { shelfSize } from "@/lib/pottery/shape";
 import type { ShelfItem } from "@/lib/supabase/shelf";
 
 const PER_PLANK = 3;
@@ -15,10 +15,10 @@ export function Shelf({ items }: { items: ShelfItem[] }) {
         <div key={plank[0].sessionId}>
           <div className="flex h-24 items-end justify-around px-1.5">
             {plank.map((item) => {
-              const [w, h] = SHELF_SIZES[item.kind];
+              const [w, h] = shelfSize(item.pieceId);
               return (
                 <span key={item.sessionId} title={`${item.podName} · ${item.minutes} min`}>
-                  <FinishedPot kind={item.kind} glaze={item.glaze} width={w} height={h} />
+                  <FinishedPot pieceId={item.pieceId} glaze={item.glaze} width={w} height={h} />
                 </span>
               );
             })}

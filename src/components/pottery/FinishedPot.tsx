@@ -1,15 +1,15 @@
-import type { Glaze, PieceKind } from "@/lib/pottery/piece";
+import type { Glaze, PieceId } from "@/lib/pottery/piece";
 import { potSvg } from "@/lib/pottery/shape";
 
 /** A finished, glazed piece. The drawing is Ashna's, ported in src/lib/pottery/shape.ts. */
 export function FinishedPot({
-  kind,
+  pieceId,
   glaze,
   width,
   height,
   glint = false,
 }: {
-  kind: PieceKind;
+  pieceId: PieceId;
   glaze: Glaze;
   width: number;
   height: number;
@@ -20,7 +20,7 @@ export function FinishedPot({
       className="block"
       style={{ width, height }}
       // Built from numbers in our own code, with no user content.
-      dangerouslySetInnerHTML={{ __html: potSvg(kind, glaze, width, height, { glint }) }}
+      dangerouslySetInnerHTML={{ __html: potSvg(pieceId, glaze, width, height, { glint }) }}
     />
   );
 }

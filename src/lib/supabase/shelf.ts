@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Session } from "../clock";
 import { type FocusInterval, palMinutes, pieceFor } from "../pottery";
-import type { Glaze, PieceKind } from "../pottery/piece";
+import type { Glaze, PieceId } from "../pottery/piece";
 import { toClockSession, type SessionRow } from "./sessions";
 
 /** One finished pot on your shelf. */
@@ -10,7 +10,7 @@ export type ShelfItem = {
   podName: string;
   /** When the session ended, in ms. */
   endedAtMs: number;
-  kind: PieceKind;
+  pieceId: PieceId;
   glaze: Glaze;
   /** Your own focused minutes in that session. */
   minutes: number;
