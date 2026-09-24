@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { listNames } from "@/lib/session/copy";
 import { getSupabase } from "@/lib/supabase/client";
 import { joinErrorMessage, joinPod, type PodPreview } from "@/lib/supabase/join";
 import { getMyProfile } from "@/lib/supabase/pods";
 import type { Pal } from "@/lib/pals";
 import type { Tag } from "@/lib/tags";
-import { useEffect } from "react";
-import { BackButton, PrimaryButton, TextButton } from "../../_ui/Buttons";
+import { BackButton, TextButton } from "../../_ui/Buttons";
 import { Grow, Screen } from "../../_ui/Screen";
 import { type SeatValues, TakeYourSeat } from "../../new/TakeYourSeat";
 
