@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { PalFace } from "@/components/pals/PalFace";
 import { StudioScene } from "@/components/scene/StudioScene";
 import { getSupabase } from "@/lib/supabase/client";
+import { getPodPreview, type PodPreview } from "@/lib/supabase/join";
+import { watchPod } from "@/lib/supabase/live";
 import { getPod } from "@/lib/supabase/pods";
 import { getOpenSession, type SessionRow, sessionErrorMessage, startSession } from "@/lib/supabase/sessions";
 import type { Pod, PodMember } from "@/lib/supabase/types";
@@ -11,12 +13,14 @@ import { BackButton, PrimaryButton, TextButton } from "../../_ui/Buttons";
 import { Grow, Screen } from "../../_ui/Screen";
 import { useGuest } from "../../_ui/useGuest";
 import { FocusSession } from "./FocusSession";
+import { JoinPod } from "./JoinPod";
 
 const SEATS = 4;
 type Loaded =
   | { status: "loading" }
   | { status: "found"; pod: Pod; members: PodMember[]; session: SessionRow | null }
-  | { status: "private" };
+  | { status: "join"; preview: PodPreview }
+  | { status: "missing" };
 
 /** Dev fast mode: opening the lobby as /p/<slug>?speed=60 starts a session where each minute takes a second. */
 function requestedSpeed(): number {
@@ -67,19 +71,37 @@ export function Lobby({ slug }: { slug: string }) {
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
 
+  const [reloads, setReloads] = useState(0);
+
   useEffect(() => {
     if (guest.status !== "ready") return;
     let live = true;
     (async () => {
       const client = getSupabase();
+      const preview = await getPodPreview(client, slug);
+      if (!preview) {
+        if (live) setState({ status: "missing" });
+        return;
+      }
+      if (!preview.isMember) {
+        if (live) setState({ status: "join", preview });
+        return;
+      }
       const r = await getPod(client, slug);
       const session = r ? await getOpenSession(client, r.pod.id) : null;
-      if (live) setState(r ? { status: "found", ...r, session } : { status: "private" });
+      if (live) setState(r ? { status: "found", ...r, session } : { status: "missing" });
     })();
     return () => {
       live = false;
     };
-  }, [guest, slug]);
+  }, [guest, slug, reloads]);
+
+  // Seats filling up, and the host starting, arrive on their own.
+  const podId = state.status === "found" ? state.pod.id : null;
+  useEffect(() => {
+    if (!podId) return;
+    return watchPod(getSupabase(), podId, () => setReloads((n) => n + 1));
+  }, [podId]);
 
   if (guest.status === "error") {
     return (
@@ -92,18 +114,22 @@ export function Lobby({ slug }: { slug: string }) {
     );
   }
 
-  if (state.status === "private") {
+  if (state.status === "missing") {
     return (
       <Screen nav={<BackButton href="/" />}>
         <Grow />
-        <p className="display text-center text-[24px]">This pod is private for now.</p>
+        <p className="display text-center text-[24px]">We couldn&apos;t find that pod.</p>
         <Grow />
         <TextButton href="/">Back home</TextButton>
       </Screen>
     );
   }
 
-  if (state.status === "loading" || guest.status !== "ready") {
+  if (state.status === "join" && guest.status === "ready") {
+    return <JoinPod preview={state.preview} me={guest.userId} onJoined={() => setReloads((n) => n + 1)} />;
+  }
+
+  if (state.status !== "found" || guest.status !== "ready") {
     return (
       <Screen nav={<BackButton href="/" />}>
         <Grow />
