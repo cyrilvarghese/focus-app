@@ -68,10 +68,10 @@ function curve(pts: [number, number][], n: number): [number, number][] {
   return out;
 }
 
-let seq = 0;
-
 export function potSvg(kind: PieceKind, glaze: Glaze, w: number, h: number, opts: { glint?: boolean; idPrefix?: string } = {}): string {
-  const id = `${opts.idPrefix ?? "fp"}${seq++}`;
+  // Derived from the inputs, not a counter, so the server and the browser agree (no hydration mismatch).
+  // Two identical pots share an id, which is harmless: their clip path and gradient are identical too.
+  const id = `${opts.idPrefix ?? "fp"}-${kind}-${glaze}-${w}x${h}${opts.glint ? "-g" : ""}`;
   const R = w * 0.42;
   const cx = w / 2;
   const base = h - w * 0.08;

@@ -28,11 +28,11 @@ describe("potSvg", () => {
     expect(potSvg("vase", "oat", 100, 120)).not.toContain('class="glint"');
   });
 
-  it("gives each drawing its own ids, so clip paths never collide", () => {
-    const a = potSvg("vase", "oat", 100, 120);
-    const b = potSvg("vase", "oat", 100, 120);
+  it("uses ids derived from the inputs, so the server and browser agree", () => {
     const idOf = (s: string) => /<clipPath id="([^"]+)"/.exec(s)?.[1];
-    expect(idOf(a)).not.toBe(idOf(b));
+    expect(idOf(potSvg("vase", "oat", 100, 120))).toBe(idOf(potSvg("vase", "oat", 100, 120)));
+    expect(idOf(potSvg("vase", "oat", 100, 120))).not.toBe(idOf(potSvg("vase", "oat", 90, 120)));
+    expect(idOf(potSvg("vase", "oat", 100, 120))).not.toBe(idOf(potSvg("bowl", "oat", 100, 120)));
   });
 
   it("has a shelf size for every kind", () => {
