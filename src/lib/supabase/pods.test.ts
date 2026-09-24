@@ -21,7 +21,7 @@ function fakeClient(o: { rpc?: Result; rows?: Record<string, Result> }) {
   return { client: { from, rpc } as unknown as SupabaseClient, from, rpc, calls };
 }
 
-const input = { name: " The afternoon pod ", focusMin: 25, breakMin: 5, rounds: 2, animal: "bunny", displayName: "Ashna", focusText: "Pitch deck" } as const;
+const input = { name: " The afternoon pod ", focusMin: 25, breakMin: 5, rounds: 2, animal: "bunny", displayName: "Ashna", focusText: "Pitch deck", tags: ["Design", "Deep work"] as string[] } as const;
 
 describe("createPod", () => {
   it("passes the RPC arguments through and returns the slug", async () => {
@@ -35,6 +35,7 @@ describe("createPod", () => {
       p_animal: "bunny",
       p_display_name: "Ashna",
       p_focus_text: "Pitch deck",
+      p_tags: ["Design", "Deep work"],
     });
   });
 
@@ -61,8 +62,8 @@ describe("getPod", () => {
     const row = {
       id: "p1", slug: "k7m2pq", name: "The afternoon pod", host_id: "u1", focus_min: 25, break_min: 5, rounds: 2,
       pod_members: [
-        { user_id: "u2", display_name: "Maya", animal: "cat", focus_text: "", joined_at: "2026-09-22T10:01:00Z" },
-        { user_id: "u1", display_name: "Cyril", animal: "dog", focus_text: "Plan", joined_at: "2026-09-22T10:00:00Z" },
+        { user_id: "u2", display_name: "Maya", animal: "cat", focus_text: "", tags: [], joined_at: "2026-09-22T10:01:00Z" },
+        { user_id: "u1", display_name: "Cyril", animal: "dog", focus_text: "Plan", tags: ["Code"], joined_at: "2026-09-22T10:00:00Z" },
       ],
     };
     const f = fakeClient({ rows: { pods: { data: row, error: null } } });

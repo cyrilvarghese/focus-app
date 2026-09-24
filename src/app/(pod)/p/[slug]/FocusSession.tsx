@@ -293,6 +293,7 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
                       {m.user_id === pod.host_id ? <span className="ml-1.5 text-[12.5px] font-medium text-muted">host</span> : null}
                     </span>
                     {m.focus_text ? <span className="block truncate text-[13.5px] text-text-2">{m.focus_text}</span> : null}
+                    {m.tags.length ? <span className="block truncate text-[12.5px] text-muted">{m.tags.join(" · ")}</span> : null}
                   </span>
                   <span className="flex items-center gap-1.5 text-[13px] text-text-2">
                     <span

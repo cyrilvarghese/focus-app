@@ -10,6 +10,7 @@ export type CreatePodInput = {
   animal: Pal;
   displayName: string;
   focusText: string;
+  tags: string[];
 };
 
 const POD_ERRORS = [
@@ -19,6 +20,7 @@ const POD_ERRORS = [
   "invalid_animal",
   "invalid_display_name",
   "invalid_focus_text",
+  "invalid_tags",
   "slug_exhausted",
   "network",
 ] as const;
@@ -41,6 +43,7 @@ export async function createPod(
       p_animal: input.animal,
       p_display_name: input.displayName,
       p_focus_text: input.focusText,
+      p_tags: input.tags,
     });
     if (error) return { error: isPodError(error.message) ? error.message : "network" };
     if (typeof data !== "string") return { error: "network" };
@@ -51,7 +54,7 @@ export async function createPod(
 }
 
 const POD_COLUMNS =
-  "id, slug, name, host_id, focus_min, break_min, rounds, pod_members(user_id, display_name, animal, focus_text, joined_at)";
+  "id, slug, name, host_id, focus_min, break_min, rounds, pod_members(user_id, display_name, animal, focus_text, tags, joined_at)";
 
 /** One select with the members embedded. RLS hides pods the caller isn't in, so "not a member" and "no such pod" both come back null. */
 export async function getPod(
@@ -85,6 +88,8 @@ export function podErrorMessage(code: PodError): string {
       return "Add your name (up to 24 characters).";
     case "invalid_focus_text":
       return "Keep what you're working on under 80 characters.";
+    case "invalid_tags":
+      return "Pick up to three tags from the list.";
     case "slug_exhausted":
       return "Couldn't find a free link. Try again.";
     case "network":

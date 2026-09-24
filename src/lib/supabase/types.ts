@@ -18,5 +18,7 @@ export type PodMember = {
   display_name: string;
   animal: Pal;
   focus_text: string;
+  /** Up to three, from src/lib/tags.ts. */
+  tags: string[];
   joined_at: string;
 };

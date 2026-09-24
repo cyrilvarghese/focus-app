@@ -13,6 +13,7 @@ import {
   type Preset,
 } from "@/lib/clock";
 import { LIMITS, type Pal, validatePodName } from "@/lib/pals";
+import type { Tag } from "@/lib/tags";
 import { getSupabase } from "@/lib/supabase/client";
 import { createPod, getMyProfile, podErrorMessage } from "@/lib/supabase/pods";
 import { BackButton, PrimaryButton } from "../_ui/Buttons";
@@ -33,7 +34,7 @@ export function NewPod() {
   const [podName, setPodName] = useState("The afternoon pod");
   const [nameTouched, setNameTouched] = useState(false);
   const [preset, setPreset] = useState<Preset>(DEFAULT_PRESET);
-  const [defaults, setDefaults] = useState<{ pal: Pal | null; name: string; focus: string }>({ pal: null, name: "", focus: "" });
+  const [defaults, setDefaults] = useState<{ pal: Pal | null; name: string; focus: string; tags: Tag[] }>({ pal: null, name: "", focus: "", tags: [] });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,6 +63,7 @@ export function NewPod() {
       animal: v.pal,
       displayName: v.name,
       focusText: v.focus,
+      tags: v.tags,
     });
     if ("slug" in r) {
       router.push(`/p/${r.slug}`);

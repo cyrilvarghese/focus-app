@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { PalFace } from "@/components/pals/PalFace";
 import { LIMITS, PAL_LABEL, PALS, type Pal, validateDisplayName, validateFocusText } from "@/lib/pals";
+import type { Tag } from "@/lib/tags";
 import { PrimaryButton } from "../_ui/Buttons";
 import { Field } from "../_ui/Field";
 import { Grow } from "../_ui/Screen";
+import { TagChips } from "../_ui/TagChips";
 
-export type SeatValues = { pal: Pal; name: string; focus: string };
+export type SeatValues = { pal: Pal; name: string; focus: string; tags: Tag[] };
 
 export function TakeYourSeat({
   takenBy = {},
@@ -20,7 +22,7 @@ export function TakeYourSeat({
 }: {
   /** Pals already seated in this pod, with who has them. Those seats are shown greyed and can't be picked. */
   takenBy?: Partial<Record<Pal, string>>;
-  defaults: { pal: Pal | null; name: string; focus: string };
+  defaults: { pal: Pal | null; name: string; focus: string; tags: Tag[] };
   subtitle?: string;
   onSubmit: (v: SeatValues) => void;
   submitting: boolean;
@@ -30,6 +32,7 @@ export function TakeYourSeat({
   const [pal, setPal] = useState<Pal | null>(defaults.pal && !takenBy[defaults.pal] ? defaults.pal : null);
   const [name, setName] = useState(defaults.name);
   const [focus, setFocus] = useState(defaults.focus);
+  const [tags, setTags] = useState<Tag[]>(defaults.tags);
   const [touched, setTouched] = useState({ name: false, focus: false });
 
   const nameHint = validateDisplayName(name);
@@ -42,37 +45,11 @@ export function TakeYourSeat({
       onSubmit={(e) => {
         e.preventDefault();
         setTouched({ name: true, focus: true });
-        if (valid && pal) onSubmit({ pal, name: name.trim(), focus: focus.trim() });
+        if (valid && pal) onSubmit({ pal, name: name.trim(), focus: focus.trim(), tags });
       }}
     >
-      <div className="mt-3.5 text-center">
-        <h1 className="display text-[32px] font-medium leading-[1.08] tracking-[-.3px]">Take your seat.</h1>
-        {subtitle ? <p className="display mt-2 text-base text-sage">{subtitle}</p> : null}
-      </div>
-
-      <div role="radiogroup" aria-label="Your pal" className="mt-5 grid grid-cols-2 gap-3.5">
-        {PALS.map((p) => {
-          const taken = takenBy[p];
-          const on = pal === p;
-          return (
-            <button
-              key={p}
-              type="button"
-              role="radio"
-              aria-checked={on}
-              aria-disabled={taken ? true : undefined}
-              onClick={() => !taken && setPal(p)}
-              className={`grid justify-items-center gap-2 rounded-3xl p-1 ${taken ? "cursor-not-allowed" : ""}`}
-            >
-              <span className={`rounded-full ${on ? "shadow-[0_0_0_3px_var(--bg),0_0_0_5px_var(--accent)]" : ""}`}>
-                <PalFace pal={p} size={92} dimmed={Boolean(taken)} />
-              </span>
-              <span className={`text-sm ${taken ? "font-medium text-muted" : "font-semibold"}`}>{PAL_LABEL[p]}</span>
-              {taken ? <span className="-mt-1.5 text-[12.5px] text-muted">{taken}</span> : null}
-            </button>
-          );
-        })}
-      </div>
+      <h1 className="display text-[32px] font-medium leading-[1.08] tracking-[-.3px]">Take your seat.</h1>
+      {subtitle ? <p className="display mt-2 text-base text-sage">{subtitle}</p> : null}
 
       <Field
         id="seat-name"
@@ -98,13 +75,44 @@ export function TakeYourSeat({
         maxLength={LIMITS.focusText + 4}
       />
 
+      <TagChips value={tags} onChange={setTags} />
+
+      <div className="mt-[22px]">
+        <p className="mb-2 text-[13.5px] font-medium text-text-2" id="pal-label">
+          Your pal
+        </p>
+        <div role="radiogroup" aria-labelledby="pal-label" className="flex gap-3.5">
+          {PALS.map((p) => {
+            const taken = takenBy[p];
+            const on = pal === p;
+            return (
+              <button
+                key={p}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                aria-label={taken ? `${PAL_LABEL[p]}, taken by ${taken}` : PAL_LABEL[p]}
+                aria-disabled={taken ? true : undefined}
+                onClick={() => !taken && setPal(p)}
+                className={`grid justify-items-center gap-1.5 rounded-full ${taken ? "cursor-not-allowed" : ""}`}
+              >
+                <span className={`rounded-full ${on ? "shadow-[0_0_0_3px_var(--bg),0_0_0_5px_var(--accent)]" : ""}`}>
+                  <PalFace pal={p} size={72} dimmed={Boolean(taken)} />
+                </span>
+                {taken ? <span className="text-[12px] text-muted">{taken}</span> : null}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <Grow />
       {error ? (
         <p role="alert" className="mb-3 text-center text-[14px] text-danger">
           {error}
         </p>
       ) : null}
-      <div className="mt-5">
+      <div className="mt-6">
         <PrimaryButton type="submit" disabled={!valid || submitting}>
           {submitting ? "One moment…" : submitLabel}
         </PrimaryButton>
