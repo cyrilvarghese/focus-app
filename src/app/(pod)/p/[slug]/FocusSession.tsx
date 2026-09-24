@@ -4,15 +4,16 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PalFace } from "@/components/pals/PalFace";
 import { type SceneView, StudioScene } from "@/components/scene/StudioScene";
-import { clockOffset, formatCountdown, phaseAt } from "@/lib/clock";
+import { clockOffset, formatCountdown, phaseAt, sessionTotalMs } from "@/lib/clock";
 import { isFocusing } from "@/lib/presence";
 import { potteryView } from "@/lib/pottery";
 import { caption, type Outcome, peekTitle, STAGE_NAMES, subtitle } from "@/lib/session/copy";
 import { getSupabase } from "@/lib/supabase/client";
 import { finishSession, getMyResult, heartbeat, leaveSession, type SessionRow, toClockSession } from "@/lib/supabase/sessions";
+import { getSessionMinutes } from "@/lib/supabase/shelf";
 import type { Pod, PodMember } from "@/lib/supabase/types";
-import { PrimaryButton } from "../../_ui/Buttons";
 import { Grow, Screen } from "../../_ui/Screen";
+import { SessionComplete } from "./SessionComplete";
 
 const TICK_MS = 250;
 const BEAT_MS = 15_000;
@@ -109,6 +110,7 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
   const [offset, setOffset] = useState(0);
   const [stage, setStage] = useState(0);
   const [outcome, setOutcome] = useState<Outcome>("pending");
+  const [minutes, setMinutes] = useState<Record<string, number>>({});
   const [sheetOpen, setSheetOpen] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [leaving, setLeaving] = useState(false);
@@ -152,14 +154,20 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
         return;
       }
       const kept = await getMyResult(client, session.id, me);
-      if (live) setOutcome(kept ? "kept" : "lost");
+      const clockSession = toClockSession(session);
+      const endedAtMs = clockSession.startedAtMs + sessionTotalMs(clockSession.preset) / (clockSession.speed ?? 1);
+      const mins = await getSessionMinutes(client, session.id, clockSession, endedAtMs);
+      if (live) {
+        setMinutes(mins);
+        setOutcome(kept ? "kept" : "lost");
+      }
     };
     attempt();
     return () => {
       live = false;
       clearTimeout(retry);
     };
-  }, [ended, session.id, me]);
+  }, [ended, session, me]);
 
   useWakeLock(!ended);
 
@@ -180,6 +188,10 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
         <Grow />
       </Screen>
     );
+  }
+
+  if (ended && outcome !== "pending") {
+    return <SessionComplete sessionId={session.id} members={members} me={me} minutes={minutes} kept={outcome === "kept"} />;
   }
 
   // Until friends can join (piece 2), only your own presence is known here.
@@ -246,28 +258,22 @@ export function FocusSession({ pod, members, me, session }: { pod: Pod; members:
 
       <Grow />
 
-      {ended && outcome !== "pending" ? (
-        <div className="mt-4">
-          <PrimaryButton onClick={() => router.push("/")}>Done</PrimaryButton>
-        </div>
-      ) : (
-        <button
-          type="button"
-          aria-expanded={sheetOpen}
-          onClick={() => setSheetOpen(true)}
-          className="mt-4 flex min-h-[64px] w-full items-center gap-3 rounded-3xl bg-card px-5 text-left shadow-[0_-10px_30px_-18px_rgba(61,57,52,.3)]"
-        >
-          <span className="flex">
-            {members.map((m, i) => (
-              <span key={m.user_id} className={`rounded-full shadow-[0_0_0_2px_var(--card)] ${i ? "-ml-2" : ""}`}>
-                <PalFace pal={m.animal} size={32} dimmed={m.user_id === me && !focusing} />
-              </span>
-            ))}
-          </span>
-          <span className="flex-1 text-[15px] font-medium text-text-2">{peek}</span>
-          <span className="text-muted">{chevron}</span>
-        </button>
-      )}
+      <button
+        type="button"
+        aria-expanded={sheetOpen}
+        onClick={() => setSheetOpen(true)}
+        className="mt-4 flex min-h-[64px] w-full items-center gap-3 rounded-3xl bg-card px-5 text-left shadow-[0_-10px_30px_-18px_rgba(61,57,52,.3)]"
+      >
+        <span className="flex">
+          {members.map((m, i) => (
+            <span key={m.user_id} className={`rounded-full shadow-[0_0_0_2px_var(--card)] ${i ? "-ml-2" : ""}`}>
+              <PalFace pal={m.animal} size={32} dimmed={m.user_id === me && !focusing} />
+            </span>
+          ))}
+        </span>
+        <span className="flex-1 text-[15px] font-medium text-text-2">{peek}</span>
+        <span className="text-muted">{chevron}</span>
+      </button>
 
       {sheetOpen ? (
         <div className="fixed inset-0 z-20" role="dialog" aria-modal="true" aria-label="Who's here">
