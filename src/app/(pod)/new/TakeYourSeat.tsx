@@ -81,7 +81,7 @@ export function TakeYourSeat({
         <p className="mb-2 text-[13.5px] font-medium text-text-2" id="pal-label">
           Your pal
         </p>
-        <div role="radiogroup" aria-labelledby="pal-label" className="flex gap-3.5">
+        <div role="radiogroup" aria-labelledby="pal-label" className="flex items-start gap-3.5">
           {PALS.map((p) => {
             const taken = takenBy[p];
             const on = pal === p;
@@ -96,7 +96,7 @@ export function TakeYourSeat({
                 onClick={() => !taken && setPal(p)}
                 className={`grid justify-items-center gap-1.5 rounded-full ${taken ? "cursor-not-allowed" : ""}`}
               >
-                <span className={`rounded-full ${on ? "shadow-[0_0_0_3px_var(--bg),0_0_0_5px_var(--accent)]" : ""}`}>
+                <span className={`block rounded-full ${on ? "shadow-[0_0_0_3px_var(--bg),0_0_0_5px_var(--accent)]" : ""}`}>
                   <PalFace pal={p} size={72} dimmed={Boolean(taken)} />
                 </span>
                 {taken ? <span className="text-[12px] text-muted">{taken}</span> : null}
